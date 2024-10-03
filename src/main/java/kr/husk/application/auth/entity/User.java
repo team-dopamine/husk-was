@@ -27,6 +27,6 @@ public class User extends BaseEntity {
     @OneToMany
     private List<KeyChain> keyChains;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<Connection> connections;
 }
