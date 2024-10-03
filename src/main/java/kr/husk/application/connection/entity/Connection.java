@@ -9,11 +9,15 @@ import jakarta.persistence.ManyToOne;
 import kr.husk.application.auth.entity.User;
 import kr.husk.application.keychain.entity.KeyChain;
 import kr.husk.common.entity.BaseEntity;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity(name = "connection")
 @DynamicInsert
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Connection extends BaseEntity {
     //user_id
     @ManyToOne
@@ -38,4 +42,13 @@ public class Connection extends BaseEntity {
     @ColumnDefault(value = "22")
     private String port;
 
+    @Builder
+    public Connection(User user, KeyChain keyChain, String name, String host, String username, String port) {
+        this.user = user;
+        this.keyChain = keyChain;
+        this.name = name;
+        this.host = host;
+        this.username = username;
+        this.port = port;
+    }
 }
