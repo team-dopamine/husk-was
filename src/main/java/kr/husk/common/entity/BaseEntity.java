@@ -1,5 +1,6 @@
 package kr.husk.common.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,6 +21,7 @@ public class BaseEntity {
     private Long id;
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
