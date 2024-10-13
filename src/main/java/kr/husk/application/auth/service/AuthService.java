@@ -5,6 +5,8 @@ import kr.husk.infrastructure.config.AuthConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,5 +27,9 @@ public class AuthService {
             return true;
         }
         return false;
+    }
+
+    private String generateAuthCode() {
+        return String.format("%06d", new Random().nextInt(999999));
     }
 }
