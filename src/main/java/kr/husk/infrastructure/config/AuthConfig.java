@@ -1,6 +1,6 @@
 package kr.husk.infrastructure.config;
 
-import kr.husk.domain.repository.AuthCodeRepository;
+import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.infrastructure.persistence.ConcurrentMapAuthCodeRepository;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,14 +1,9 @@
-package kr.husk.application.connection.entity;
+package kr.husk.domain.connection.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ConstraintMode;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import kr.husk.application.auth.entity.User;
-import kr.husk.application.keychain.entity.KeyChain;
+import jakarta.persistence.*;
 import kr.husk.common.entity.BaseEntity;
+import kr.husk.domain.auth.entity.User;
+import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

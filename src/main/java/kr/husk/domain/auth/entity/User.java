@@ -1,14 +1,10 @@
-package kr.husk.application.auth.entity;
+package kr.husk.domain.auth.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
-import kr.husk.application.auth.type.OAuthProvider;
-import kr.husk.application.connection.entity.Connection;
-import kr.husk.application.keychain.entity.KeyChain;
+import jakarta.persistence.*;
 import kr.husk.common.entity.BaseEntity;
+import kr.husk.domain.auth.type.OAuthProvider;
+import kr.husk.domain.connection.entity.Connection;
+import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

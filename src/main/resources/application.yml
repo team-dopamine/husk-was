@@ -11,3 +11,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+husk:
+  auth:
+    code-expiration: ${AUTH_CODE_EXPIRATION}
+    key-prefix: ${AUTH_CODE_KEY_PREFIX}
