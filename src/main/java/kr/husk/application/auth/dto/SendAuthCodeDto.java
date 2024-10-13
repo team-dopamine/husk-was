@@ -6,10 +6,12 @@ import jakarta.validation.constraints.NotBlank;
 import kr.husk.domain.auth.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class SendAuthCodeDto {
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     @Schema(name = "SendAuthCode.Request", description = "인증 코드 전송 요청 DTO")
     public static class Request {
