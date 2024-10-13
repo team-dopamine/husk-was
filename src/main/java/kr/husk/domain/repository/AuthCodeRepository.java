@@ -1,4 +1,4 @@
-package kr.husk.application.auth.repository;
+package kr.husk.domain.repository;
 
 public interface AuthCodeRepository {
     void create(String key, String code, long expireTime);
