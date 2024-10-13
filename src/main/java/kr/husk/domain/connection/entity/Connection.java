@@ -1,9 +1,9 @@
 package kr.husk.domain.connection.entity;
 
 import jakarta.persistence.*;
-import kr.husk.application.keychain.entity.KeyChain;
 import kr.husk.common.entity.BaseEntity;
 import kr.husk.domain.auth.entity.User;
+import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

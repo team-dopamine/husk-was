@@ -1,10 +1,10 @@
 package kr.husk.domain.auth.entity;
 
 import jakarta.persistence.*;
-import kr.husk.application.keychain.entity.KeyChain;
 import kr.husk.common.entity.BaseEntity;
 import kr.husk.domain.auth.type.OAuthProvider;
 import kr.husk.domain.connection.entity.Connection;
+import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
