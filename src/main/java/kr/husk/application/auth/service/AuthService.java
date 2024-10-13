@@ -1,5 +1,6 @@
 package kr.husk.application.auth.service;
 
+import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.infrastructure.config.AuthConfig;
@@ -22,23 +23,23 @@ public class AuthService {
     private final AuthCodeRepository authCodeRepository;
 
     @Transactional
-    public String sendAuthCode(String to) {
-        if (userService.isExist(to)) {
+    public SendAuthCodeDto.Response sendAuthCode(SendAuthCodeDto.Request dto) {
+        if (userService.isExist(dto.getEmail())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
         String authCode = generateAuthCode();
-        authCodeRepository.create(to, authCode, authConfig.getCodeExpiration());
+        authCodeRepository.create(dto.getEmail(), authCode, authConfig.getCodeExpiration());
 
         try {
-            sendEmail(to, authCode);
-            log.info("인증 코드가 성공적으로 전송되었습니다. 이메일: {}", to);
+            sendEmail(dto.getEmail(), authCode);
+            log.info("인증 코드가 성공적으로 전송되었습니다. 이메일: {}", dto.getEmail());
         } catch (Exception e) {
-            log.error("이메일 전송 실패. 이메일: {}", to, e);
+            log.error("이메일 전송 실패. 이메일: {}", dto.getEmail(), e);
             throw new RuntimeException("이메일 전송에 실패했습니다.");
         }
 
-        return authCode;
+        return SendAuthCodeDto.Response.of("인증 코드가 성공적으로 전송되었습니다.");
     }
 
     @Transactional

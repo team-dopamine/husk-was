@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-public class SendAuthCode {
+public class SendAuthCodeDto {
     @Getter
     @AllArgsConstructor
     @Schema(name = "SendAuthCode.Request", description = "인증 코드 전송 요청 DTO")
