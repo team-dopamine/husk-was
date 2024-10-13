@@ -1,4 +1,4 @@
-package kr.husk.application.connection.entity;
+package kr.husk.domain.connection.entity;
 
 import jakarta.persistence.*;
 import kr.husk.application.keychain.entity.KeyChain;
