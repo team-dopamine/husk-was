@@ -1,6 +1,7 @@
 package kr.husk.presentation.rest;
 
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
 import kr.husk.presentation.api.AuthApi;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,11 @@ public class AuthController implements AuthApi {
     @PostMapping("/send-code")
     public ResponseEntity<?> sendAuthCode(SendAuthCodeDto.Request dto) {
         return ResponseEntity.ok(authService.sendAuthCode(dto));
+    }
+
+    @Override
+    @PostMapping("/verify-code")
+    public ResponseEntity<?> verifyAuthCode(VerifyAuthCodeDto.Request dto) {
+        return ResponseEntity.ok(authService.verifyAuthCode(dto.getEmail(), dto.getAuthCode()));
     }
 }
