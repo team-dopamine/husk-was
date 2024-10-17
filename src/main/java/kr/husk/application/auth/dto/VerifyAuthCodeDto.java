@@ -27,10 +27,10 @@ public class VerifyAuthCodeDto {
     @AllArgsConstructor
     @Schema(name = "VerifyAuthCode.Response", description = "인증 코드 검증 응답 DTO")
     public static class Response {
-        private boolean message;
+        private String message;
 
-        public static Response of(boolean message) {
-            return new Response(message);
+        public static Response of(boolean isVerified) {
+            return new Response(isVerified ? "인증에 성공했습니다." : "인증에 실패했습니다.");
         }
     }
 }

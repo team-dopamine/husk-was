@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -28,5 +29,5 @@ public interface AuthApi {
             @ApiResponse(responseCode = "200", description = "인증 코드 검증 성공"),
             @ApiResponse(responseCode = "400", description = "인증 코드 검증 실패")
     })
-    ResponseEntity<?> verifyAuthCode(@RequestBody SendAuthCodeDto.Request dto);
+    ResponseEntity<?> verifyAuthCode(@RequestBody VerifyAuthCodeDto.Request dto);
 }

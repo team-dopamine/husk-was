@@ -1,6 +1,7 @@
 package kr.husk.application.auth.service;
 
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.infrastructure.config.AuthConfig;
@@ -43,13 +44,13 @@ public class AuthService {
     }
 
     @Transactional
-    public boolean verifyAuthCode(String email, String code) {
-        String savedCode = authCodeRepository.read(authConfig.getKeyPrefix() + email);
-        if (savedCode != null && savedCode.equals(code)) {
-            authCodeRepository.delete(authConfig.getKeyPrefix() + email);
-            return true;
+    public VerifyAuthCodeDto.Response verifyAuthCode(VerifyAuthCodeDto.Request dto) {
+        String savedCode = authCodeRepository.read(authConfig.getKeyPrefix() + dto.getEmail());
+        if (savedCode != null && savedCode.equals(dto.getAuthCode())) {
+            authCodeRepository.delete(authConfig.getKeyPrefix() + dto.getEmail());
+            return VerifyAuthCodeDto.Response.of(true);
         }
-        return false;
+        return VerifyAuthCodeDto.Response.of(false);
     }
 
     private String generateAuthCode() {

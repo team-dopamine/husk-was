@@ -25,6 +25,6 @@ public class AuthController implements AuthApi {
     @Override
     @PostMapping("/verify-code")
     public ResponseEntity<?> verifyAuthCode(VerifyAuthCodeDto.Request dto) {
-        return ResponseEntity.ok(authService.verifyAuthCode(dto.getEmail(), dto.getAuthCode()));
+        return ResponseEntity.ok(authService.verifyAuthCode(dto));
     }
 }
