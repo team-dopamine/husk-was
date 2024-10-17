@@ -30,7 +30,7 @@ public class AuthService {
         }
 
         String authCode = generateAuthCode();
-        authCodeRepository.create(dto.getEmail(), authCode, authConfig.getCodeExpiration());
+        authCodeRepository.create(dto.getEmail(), authCode);
 
         try {
             sendEmail(dto.getEmail(), authCode);
@@ -45,14 +45,14 @@ public class AuthService {
 
     @Transactional
     public VerifyAuthCodeDto.Response verifyAuthCode(VerifyAuthCodeDto.Request dto) {
-        String savedCode = authCodeRepository.read(authConfig.getKeyPrefix() + dto.getEmail());
+        String savedCode = authCodeRepository.read(dto.getEmail());
         if (savedCode != null && savedCode.equals(dto.getAuthCode())) {
-            authCodeRepository.delete(authConfig.getKeyPrefix() + dto.getEmail());
+            authCodeRepository.delete(dto.getEmail());
             log.info("인증에 성공했습니다. 이메일: {}", dto.getEmail());
-            return VerifyAuthCodeDto.Response.of(true);
+            return VerifyAuthCodeDto.Response.of("인증에 성공했습니다.");
         }
         log.error("인증에 실패했습니다. 이메일: {}", dto.getEmail());
-        return VerifyAuthCodeDto.Response.of(false);
+        throw new IllegalArgumentException("인증에 실패했습니다.");
     }
 
     private String generateAuthCode() {

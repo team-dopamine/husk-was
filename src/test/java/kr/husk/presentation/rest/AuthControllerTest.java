@@ -49,7 +49,7 @@ class AuthControllerTest {
         VerifyAuthCodeDto.Request dto = new VerifyAuthCodeDto.Request("jinlee1703@gmail.com", "123456");
 
         // when
-        when(authService.verifyAuthCode(dto)).thenReturn(VerifyAuthCodeDto.Response.of(true));
+        when(authService.verifyAuthCode(dto)).thenReturn(VerifyAuthCodeDto.Response.of("인증에 성공했습니다."));
 
         // then
         mockMvc.perform(post("/auth/verify-code")

@@ -29,8 +29,8 @@ public class VerifyAuthCodeDto {
     public static class Response {
         private String message;
 
-        public static Response of(boolean isVerified) {
-            return new Response(isVerified ? "인증에 성공했습니다." : "인증에 실패했습니다.");
+        public static Response of(String message) {
+            return new Response(message);
         }
     }
 }
