@@ -48,8 +48,10 @@ public class AuthService {
         String savedCode = authCodeRepository.read(authConfig.getKeyPrefix() + dto.getEmail());
         if (savedCode != null && savedCode.equals(dto.getAuthCode())) {
             authCodeRepository.delete(authConfig.getKeyPrefix() + dto.getEmail());
+            log.info("인증에 성공했습니다. 이메일: {}", dto.getEmail());
             return VerifyAuthCodeDto.Response.of(true);
         }
+        log.error("인증에 실패했습니다. 이메일: {}", dto.getEmail());
         return VerifyAuthCodeDto.Response.of(false);
     }
 
