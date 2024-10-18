@@ -2,6 +2,7 @@ package kr.husk.presentation.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,20 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
+    }
 
+    @Test
+    void verifyAuthCodeApiTest() throws Exception {
+        // give
+        VerifyAuthCodeDto.Request dto = new VerifyAuthCodeDto.Request("jinlee1703@gmail.com", "123456");
+
+        // when
+        when(authService.verifyAuthCode(dto)).thenReturn(VerifyAuthCodeDto.Response.of("인증에 성공했습니다."));
+
+        // then
+        mockMvc.perform(post("/auth/verify-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk());
     }
 }

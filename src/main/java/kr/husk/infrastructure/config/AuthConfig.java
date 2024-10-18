@@ -18,6 +18,6 @@ public class AuthConfig {
 
     @Bean
     public AuthCodeRepository authCodeRepository() {
-        return new ConcurrentMapAuthCodeRepository();
+        return new ConcurrentMapAuthCodeRepository(this);
     }
 }

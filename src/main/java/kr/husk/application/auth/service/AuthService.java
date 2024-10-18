@@ -1,6 +1,7 @@
 package kr.husk.application.auth.service;
 
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.infrastructure.config.AuthConfig;
@@ -29,7 +30,7 @@ public class AuthService {
         }
 
         String authCode = generateAuthCode();
-        authCodeRepository.create(dto.getEmail(), authCode, authConfig.getCodeExpiration());
+        authCodeRepository.create(dto.getEmail(), authCode);
 
         try {
             sendEmail(dto.getEmail(), authCode);
@@ -43,13 +44,15 @@ public class AuthService {
     }
 
     @Transactional
-    public boolean verifyAuthCode(String email, String code) {
-        String savedCode = authCodeRepository.read(authConfig.getKeyPrefix() + email);
-        if (savedCode != null && savedCode.equals(code)) {
-            authCodeRepository.delete(authConfig.getKeyPrefix() + email);
-            return true;
+    public VerifyAuthCodeDto.Response verifyAuthCode(VerifyAuthCodeDto.Request dto) {
+        String savedCode = authCodeRepository.read(dto.getEmail());
+        if (savedCode != null && savedCode.equals(dto.getAuthCode())) {
+            authCodeRepository.delete(dto.getEmail());
+            log.info("인증에 성공했습니다. 이메일: {}", dto.getEmail());
+            return VerifyAuthCodeDto.Response.of("인증에 성공했습니다.");
         }
-        return false;
+        log.error("인증에 실패했습니다. 이메일: {}", dto.getEmail());
+        throw new IllegalArgumentException("인증에 실패했습니다.");
     }
 
     private String generateAuthCode() {
