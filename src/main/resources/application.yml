@@ -1,8 +1,10 @@
 spring:
+  config:
+    import: 'aws-parameterstore:/config/husk/'
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&serverTimezone=UTC
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${jdbc.url}
+    username: ${jdbc.username}
+    password: ${jdbc.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -12,10 +14,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
     properties:
       mail:
         smtp:
@@ -25,5 +27,11 @@ spring:
 
 husk:
   auth:
-    code-expiration: ${AUTH_CODE_EXPIRATION}
-    key-prefix: ${AUTH_CODE_KEY_PREFIX}
+    code-expiration: ${auth.code.expiration}
+    key-prefix: ${auth.code.prefix}
+
+aws:
+  paramstore:
+    enabled: true
+    prefix: /config
+    name: husk
