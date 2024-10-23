@@ -36,11 +36,16 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    //swagger
+    // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
     // email
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //AWS Parameter Store
+    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.0"))
+    implementation("io.awspring.cloud:spring-cloud-aws-starter")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-parameter-store")
 }
 
 tasks.named('test') {
