@@ -1,6 +1,7 @@
 package kr.husk.presentation.rest;
 
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
 import kr.husk.presentation.api.AuthApi;
@@ -26,5 +27,11 @@ public class AuthController implements AuthApi {
     @PostMapping("/verify-code")
     public ResponseEntity<?> verifyAuthCode(VerifyAuthCodeDto.Request dto) {
         return ResponseEntity.ok(authService.verifyAuthCode(dto));
+    }
+
+    @Override
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> signUp(SignUpDto.Request dto) {
+        return ResponseEntity.created(null).body(authService.signUp(dto));
     }
 }
