@@ -1,4 +1,4 @@
-package kr.husk.application.auth.service;
+package kr.husk.domain.auth.service;
 
 import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.auth.repository.UserRepository;
