@@ -3,7 +3,6 @@ package kr.husk.application.auth.service;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
-import kr.husk.domain.auth.service.UserService;
 import kr.husk.infrastructure.config.AuthConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
