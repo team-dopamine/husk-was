@@ -30,4 +30,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "인증 코드 검증 실패")
     })
     ResponseEntity<?> verifyAuthCode(@RequestBody VerifyAuthCodeDto.Request dto);
+
+    @Operation(summary = "일반 사용자 회원가입", description = "일반 회원가입을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "400", description = "회원가입 실패")
+    })
+    ResponseEntity<?> signUp(@RequestBody SendAuthCodeDto.Request dto);
 }
