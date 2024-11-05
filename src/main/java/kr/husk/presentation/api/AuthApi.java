@@ -6,13 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "[인증 관련 API]", description = "사용자 인증 관련 API")
+@Validated
 public interface AuthApi {
     @Operation(summary = "인증 코드 전송", description = "이메일로 인증 코드를 전송하기 위한 API")
     @ApiResponses({
@@ -37,5 +40,5 @@ public interface AuthApi {
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
             @ApiResponse(responseCode = "400", description = "회원가입 실패")
     })
-    ResponseEntity<?> signUp(@RequestBody SignUpDto.Request dto);
+    ResponseEntity<?> signUp(@Valid @RequestBody SignUpDto.Request dto);
 }
