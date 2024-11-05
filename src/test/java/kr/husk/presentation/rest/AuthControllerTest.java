@@ -62,7 +62,7 @@ class AuthControllerTest {
     @Test
     void signUpApiTest() throws Exception {
         // give
-        SignUpDto.Request dto = new SignUpDto.Request("jinlee1703@gmail.com", "abc123!@");
+        SignUpDto.Request dto = new SignUpDto.Request("jinlee1703@gmail.com", "Abc123!@");
 
         // when
         when(authService.signUp(dto)).thenReturn(SignUpDto.Response.of("회원가입에 성공했습니다."));
