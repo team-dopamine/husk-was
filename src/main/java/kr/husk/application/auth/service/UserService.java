@@ -13,15 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User create(String email, String password) {
-        return userRepository.save(User.builder()
-                .email(email)
-                .password(password)
-                .oAuthProvider(OAuthProvider.NONE)
-                .build());
+    public User create(User user) {
+        return userRepository.save(user);
     }
 
-    public boolean isExist(String email) {
-        return userRepository.findByEmail(email).isPresent();
+    public boolean isExist(String email, OAuthProvider oAuthProvider) {
+        return userRepository.findByEmail(email)
+                .map(user -> user.getOAuthProvider().equals(oAuthProvider))
+                .orElse(false);
     }
 }
