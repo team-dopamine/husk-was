@@ -62,6 +62,7 @@ public class AuthService {
         if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
+        userService.create(dto.toEntity());
         log.info("회원가입에 성공했습니다. 이메일: {}", dto.getEmail());
         return SignUpDto.Response.of("회원가입에 성공했습니다.");
     }
