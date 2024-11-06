@@ -7,11 +7,14 @@ import kr.husk.domain.connection.entity.Connection;
 import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
 @Entity(name = "user")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Column(name = "email", nullable = false, updatable = false, length = 50)
@@ -37,5 +40,9 @@ public class User extends BaseEntity {
         this.oAuthProvider = oAuthProvider;
         this.keyChains = keyChains;
         this.connections = connections;
+    }
+
+    public void encodePassword(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
     }
 }

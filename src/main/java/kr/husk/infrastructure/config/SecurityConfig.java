@@ -19,6 +19,7 @@ public class SecurityConfig {
                         authorizeHttpRequests.requestMatchers(
                                         "/auth/send-code",
                                         "/auth/verify-code",
+                                        "/auth/sign-up",
                                         "/swagger-resources/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",

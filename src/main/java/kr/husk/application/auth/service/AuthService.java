@@ -1,9 +1,12 @@
 package kr.husk.application.auth.service;
 
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
+import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.domain.auth.service.UserService;
+import kr.husk.domain.auth.type.OAuthProvider;
 import kr.husk.infrastructure.config.AuthConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +28,7 @@ public class AuthService {
 
     @Transactional
     public SendAuthCodeDto.Response sendAuthCode(SendAuthCodeDto.Request dto) {
-        if (userService.isExist(dto.getEmail())) {
+        if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
@@ -53,6 +56,18 @@ public class AuthService {
         }
         log.error("인증에 실패했습니다. 이메일: {}", dto.getEmail());
         throw new IllegalArgumentException("인증에 실패했습니다.");
+    }
+
+    @Transactional
+    public SignUpDto.Response signUp(SignUpDto.Request dto) {
+        if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
+        User user = dto.toEntity();
+        user.encodePassword(authConfig.passwordEncoder());
+        userService.create(user);
+        log.info("회원가입에 성공했습니다. 이메일: {}", dto.getEmail());
+        return SignUpDto.Response.of("회원가입에 성공했습니다.");
     }
 
     private String generateAuthCode() {

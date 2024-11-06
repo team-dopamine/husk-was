@@ -2,6 +2,7 @@ package kr.husk.presentation.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
 import org.junit.jupiter.api.Test;
@@ -56,5 +57,20 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void signUpApiTest() throws Exception {
+        // give
+        SignUpDto.Request dto = new SignUpDto.Request("jinlee1703@gmail.com", "Abc123!@");
+
+        // when
+        when(authService.signUp(dto)).thenReturn(SignUpDto.Response.of("회원가입에 성공했습니다."));
+
+        // then
+        mockMvc.perform(post("/auth/sign-up")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
     }
 }
