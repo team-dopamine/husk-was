@@ -41,4 +41,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "회원가입 실패")
     })
     ResponseEntity<?> signUp(@Valid @RequestBody SignUpDto.Request dto);
+
+    @Operation(summary = "서비스 사용자 약관 조회", description = "서비스 사용자 약관을 조회하기 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "약관 조회 성공"),
+            @ApiResponse(responseCode = "400", description = "약관 조회 실패")
+    })
+    ResponseEntity<?> getTermsOfService();
 }
