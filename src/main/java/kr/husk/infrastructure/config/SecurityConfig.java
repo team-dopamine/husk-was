@@ -20,6 +20,7 @@ public class SecurityConfig {
                                         "/auth/send-code",
                                         "/auth/verify-code",
                                         "/auth/sign-up",
+                                        "/auth/terms-of-service",
                                         "/swagger-resources/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
