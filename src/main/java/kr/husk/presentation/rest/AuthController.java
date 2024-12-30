@@ -7,6 +7,7 @@ import kr.husk.application.auth.service.AuthService;
 import kr.husk.presentation.api.AuthApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,5 +34,11 @@ public class AuthController implements AuthApi {
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(SignUpDto.Request dto) {
         return ResponseEntity.created(null).body(authService.signUp(dto));
+    }
+
+    @Override
+    @GetMapping("/terms-of-service")
+    public ResponseEntity<?> getTermsOfService() {
+        return ResponseEntity.ok(authService.readTermsOfService());
     }
 }
