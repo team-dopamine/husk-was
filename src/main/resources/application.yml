@@ -35,3 +35,6 @@ aws:
     enabled: true
     prefix: /config
     name: husk
+
+cors:
+  allowed-origins: ${cors.allowed-origins}
