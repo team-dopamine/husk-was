@@ -3,7 +3,10 @@ package kr.husk.application.auth.service;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
+import kr.husk.common.exception.GlobalException;
 import kr.husk.domain.auth.entity.User;
+import kr.husk.domain.auth.exception.AuthExceptionCode;
+import kr.husk.domain.auth.exception.UserExceptionCode;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.auth.type.OAuthProvider;
@@ -29,7 +32,7 @@ public class AuthService {
     @Transactional
     public SendAuthCodeDto.Response sendAuthCode(SendAuthCodeDto.Request dto) {
         if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new GlobalException(UserExceptionCode.EMAIL_ALREADY_EXISTS);
         }
 
         String authCode = generateAuthCode();
@@ -40,7 +43,7 @@ public class AuthService {
             log.info("인증 코드가 성공적으로 전송되었습니다. 이메일: {}", dto.getEmail());
         } catch (Exception e) {
             log.error("이메일 전송 실패. 이메일: {}", dto.getEmail(), e);
-            throw new RuntimeException("이메일 전송에 실패했습니다.");
+            throw new GlobalException(AuthExceptionCode.EMAIL_SEND_FAILED);
         }
 
         return SendAuthCodeDto.Response.of("인증 코드가 성공적으로 전송되었습니다.");
@@ -55,13 +58,13 @@ public class AuthService {
             return VerifyAuthCodeDto.Response.of("인증에 성공했습니다.");
         }
         log.error("인증에 실패했습니다. 이메일: {}", dto.getEmail());
-        throw new IllegalArgumentException("인증에 실패했습니다.");
+        throw new GlobalException(AuthExceptionCode.VERIFICATION_CODE_NOT_MATCH);
     }
 
     @Transactional
     public SignUpDto.Response signUp(SignUpDto.Request dto) {
         if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new GlobalException(UserExceptionCode.EMAIL_ALREADY_EXISTS);
         }
         User user = dto.toEntity();
         user.encodePassword(authConfig.passwordEncoder());
