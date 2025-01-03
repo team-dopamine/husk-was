@@ -1,6 +1,10 @@
 package kr.husk.domain.auth.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
 import kr.husk.common.entity.BaseEntity;
 import kr.husk.domain.auth.type.OAuthProvider;
 import kr.husk.domain.connection.entity.Connection;
@@ -44,5 +48,9 @@ public class User extends BaseEntity {
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(password);
+    }
+
+    public boolean isMatched(PasswordEncoder passwordEncoder, String password) {
+        return passwordEncoder.matches(password, this.password);
     }
 }
