@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import org.springframework.http.ResponseEntity;
@@ -48,4 +49,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "약관 조회 실패")
     })
     ResponseEntity<?> getTermsOfService();
+
+    @Operation(summary = "일반 사용자 로그인", description = "일반 로그인을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "400", description = "로그인 실패")
+    })
+    ResponseEntity<?> signIn(@Valid @RequestBody SignInDto.Request dto);
 }
