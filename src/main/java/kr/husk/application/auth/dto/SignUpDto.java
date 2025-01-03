@@ -18,7 +18,8 @@ public class SignUpDto {
     @Schema(name = "SignUp.Request", description = "회원가입 요청 DTO")
     public static class Request {
         @NotBlank(message = "이메일은 필수 입력값입니다.")
-        @Email(message = "올바른 이메일 형식이 아닙니다.")
+        @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                message = "올바른 이메일 형식이 아닙니다.")
         @Schema(description = "이메일", example = "team.dopamine.dev@gmail.com")
         private String email;
 
