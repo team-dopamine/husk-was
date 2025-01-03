@@ -34,6 +34,7 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setClaims(claims)
+                .setIssuer(issuer)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(SignatureAlgorithm.HS512, secret.getBytes())
@@ -50,7 +51,7 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-            if (!token.substring(0, "Bearer ".length()).equalsIgnoreCase("Bearer ")) {
+            if (!token.startsWith("Bearer ")) {
                 return false;
             } else {
                 token = token.split(" ")[1].trim();
