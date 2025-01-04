@@ -14,6 +14,7 @@ import kr.husk.domain.auth.repository.AuthCodeRepository;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.auth.type.OAuthProvider;
 import kr.husk.infrastructure.config.AuthConfig;
+import kr.husk.infrastructure.persistence.ConcurrentMapRefreshRefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -32,6 +33,7 @@ public class AuthService {
     private final UserService userService;
     private final AuthCodeRepository authCodeRepository;
     private final JwtProvider jwtProvider;
+    private final ConcurrentMapRefreshRefreshTokenRepository concurrentMapRefreshTokenRepository;
 
     @Transactional
     public SendAuthCodeDto.Response sendAuthCode(SendAuthCodeDto.Request dto) {
@@ -92,6 +94,8 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+
+        concurrentMapRefreshTokenRepository.create(user.getEmail(), refreshToken);
 
         log.info("로그인에 성공하였습니다. 이메일: {}", dto.getEmail());
         return new SignInDto.Response("로그인에 성공하였습니다.", tokenDto);
