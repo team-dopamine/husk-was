@@ -78,7 +78,7 @@ public class JwtProvider {
 
     public long getExpirationTime(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secret)
+                .setSigningKey(secret.getBytes())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
