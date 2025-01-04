@@ -13,17 +13,18 @@ import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
-public class ConcurrentMapRefreshRefreshTokenRepository implements RefreshTokenRepository {
+public class ConcurrentMapRefreshTokenRepository implements RefreshTokenRepository {
 
     private final JwtProvider jwtProvider;
     private final ConcurrentHashMap<String, String> refreshTokenMap = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     @Override
-    public void create(String email, String token) {
-        refreshTokenMap.put(email, token);
+    public void create(String email) {
+        String refreshToken = jwtProvider.generateRefreshToken(email);
+        refreshTokenMap.put(email, refreshToken);
 
-        long expirationInMillis = jwtProvider.getExpirationTime(token);
+        long expirationInMillis = jwtProvider.getExpirationTime(refreshToken);
         long delayInMillis = expirationInMillis - System.currentTimeMillis();
 
         scheduledExecutorService.schedule(() -> refreshTokenMap.remove(email), delayInMillis, TimeUnit.MILLISECONDS);
