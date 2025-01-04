@@ -38,3 +38,9 @@ aws:
 
 cors:
   allowed-origins: ${cors.allowed-origins}
+
+jwt:
+  secret: ${jwt.secret}
+  access-expiration: ${jwt.access-expiration}
+  refresh-expiration: ${jwt.refresh-expiration}
+  issuer: ${jwt.issuer}

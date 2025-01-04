@@ -1,9 +1,12 @@
 package kr.husk.application.auth.service;
 
+import kr.husk.application.auth.dto.JwtTokenDto;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.common.exception.GlobalException;
+import kr.husk.common.jwt.util.JwtProvider;
 import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.domain.auth.exception.UserExceptionCode;
@@ -28,6 +31,7 @@ public class AuthService {
     private final JavaMailSender mailSender;
     private final UserService userService;
     private final AuthCodeRepository authCodeRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public SendAuthCodeDto.Response sendAuthCode(SendAuthCodeDto.Request dto) {
@@ -71,6 +75,26 @@ public class AuthService {
         userService.create(user);
         log.info("회원가입에 성공했습니다. 이메일: {}", dto.getEmail());
         return SignUpDto.Response.of("회원가입에 성공했습니다.");
+    }
+
+    @Transactional
+    public SignInDto.Response signIn(SignInDto.Request dto) {
+        User user = userService.read(dto.getEmail(), OAuthProvider.NONE);
+        if (!user.isMatched(authConfig.passwordEncoder(), dto.getPassword())) {
+            log.info("비밀번호가 일치하지 않습니다. 이메일: {}", dto.getEmail());
+            throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
+        }
+
+        String accessToken = jwtProvider.generateAccessToken(user.getEmail());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+        JwtTokenDto tokenDto = JwtTokenDto.builder()
+                .grantType("Bearer ")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+
+        log.info("로그인에 성공하였습니다. 이메일: {}", dto.getEmail());
+        return new SignInDto.Response("로그인에 성공하였습니다.", tokenDto);
     }
 
     public String readTermsOfService() {
