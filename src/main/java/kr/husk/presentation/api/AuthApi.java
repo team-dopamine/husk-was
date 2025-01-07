@@ -14,6 +14,7 @@ import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "[인증 관련 API]", description = "사용자 인증 관련 API")
 @Validated
@@ -56,4 +57,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "로그인 실패")
     })
     ResponseEntity<?> signIn(@Valid @RequestBody SignInDto.Request dto);
+
+    @Operation(summary = "Google OAuth 로그인", description = "Google OAuth 로그인을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "400", description = "로그인 실패")
+    })
+    ResponseEntity<?> signIn(@RequestParam("code") String code);
 }
