@@ -26,8 +26,6 @@ public class UserService {
     }
 
     public boolean isExist(String email, OAuthProvider oAuthProvider) {
-        return userRepository.findByEmail(email)
-                .map(user -> user.getOAuthProvider().equals(oAuthProvider))
-                .orElse(false);
+        return userRepository.findByEmailAndOAuthProvider(email, oAuthProvider).isPresent();
     }
 }
