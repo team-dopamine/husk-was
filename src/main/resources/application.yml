@@ -44,3 +44,12 @@ jwt:
   access-expiration: ${jwt.access-expiration}
   refresh-expiration: ${jwt.refresh-expiration}
   issuer: ${jwt.issuer}
+
+oauth2:
+  google:
+    client-id: ${oauth2.google.client-id}
+    client-secret: ${oauth2.google.client-secret}
+    scope: ${oauth2.google.scope}
+    redirect-uri: ${oauth2.google.redirect-uri}
+    token-uri: ${oauth2.google.token-uri}
+    user-info-uri: ${oauth2.google.user-info-uri}
