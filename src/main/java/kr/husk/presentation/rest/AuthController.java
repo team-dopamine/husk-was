@@ -6,6 +6,8 @@ import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
 import kr.husk.application.auth.service.GoogleOAuthService;
+import kr.husk.common.exception.GlobalException;
+import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.presentation.api.AuthApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -53,8 +55,12 @@ public class AuthController implements AuthApi {
     }
 
     @Override
-    @GetMapping("/sign-in/google")
-    public ResponseEntity<?> signIn(@RequestParam("code") String code) {
-        return ResponseEntity.ok(googleOAuthService.googleSignIn(code));
+    @GetMapping("/sign-in")
+    public ResponseEntity<?> signIn(@RequestParam("type") String type, @RequestParam("code") String code) {
+        if ("google".equals(type)) {
+            return ResponseEntity.ok(googleOAuthService.googleSignIn(code));
+        } else {
+            throw new GlobalException(AuthExceptionCode.NOT_ALLOWED_TYPE);
+        }
     }
 }

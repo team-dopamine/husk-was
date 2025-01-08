@@ -63,5 +63,5 @@ public interface AuthApi {
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
             @ApiResponse(responseCode = "400", description = "로그인 실패")
     })
-    ResponseEntity<?> signIn(@RequestParam("code") String code);
+    ResponseEntity<?> signIn(@RequestParam("type") String type, @RequestParam("code") String code);
 }

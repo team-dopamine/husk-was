@@ -37,7 +37,6 @@ public class SecurityConfig {
                                         "/auth/verify-code",
                                         "/auth/sign-up",
                                         "/auth/sign-in",
-                                        "/auth/sign-in/google",
                                         "/auth/terms-of-service",
                                         "/swagger-resources/**",
                                         "/swagger-ui/**",
