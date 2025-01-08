@@ -20,14 +20,11 @@ public class UserService {
     }
 
     public User read(String email, OAuthProvider oAuthProvider) {
-        return userRepository.findByEmail(email)
-                .filter(user -> user.getOAuthProvider().equals(oAuthProvider))
+        return userRepository.findByEmailAndOAuthProvider(email, oAuthProvider)
                 .orElseThrow(() -> new GlobalException(UserExceptionCode.EMAIL_IS_NOT_FOUND));
     }
 
     public boolean isExist(String email, OAuthProvider oAuthProvider) {
-        return userRepository.findByEmail(email)
-                .map(user -> user.getOAuthProvider().equals(oAuthProvider))
-                .orElse(false);
+        return userRepository.findByEmailAndOAuthProvider(email, oAuthProvider).isPresent();
     }
 }

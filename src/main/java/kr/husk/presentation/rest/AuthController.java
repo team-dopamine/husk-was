@@ -5,12 +5,16 @@ import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
+import kr.husk.application.auth.service.GoogleOAuthService;
+import kr.husk.common.exception.GlobalException;
+import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.presentation.api.AuthApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController implements AuthApi {
     private final AuthService authService;
+    private final GoogleOAuthService googleOAuthService;
 
     @Override
     @PostMapping("/send-code")
@@ -47,5 +52,15 @@ public class AuthController implements AuthApi {
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(SignInDto.Request dto) {
         return ResponseEntity.ok(authService.signIn(dto));
+    }
+
+    @Override
+    @GetMapping("/sign-in")
+    public ResponseEntity<?> signIn(@RequestParam("type") String type, @RequestParam("code") String code) {
+        if ("google".equals(type)) {
+            return ResponseEntity.ok(googleOAuthService.googleSignIn(code));
+        } else {
+            throw new GlobalException(AuthExceptionCode.NOT_ALLOWED_TYPE);
+        }
     }
 }

@@ -30,7 +30,7 @@ public class SignInDto {
 
     @Getter
     @AllArgsConstructor
-    @Schema(name = "SignIn.Request", description = "로그인 요청 DTO")
+    @Schema(name = "SignIn.Response", description = "로그인 응답 DTO")
     public static class Response {
         private String message;
         private JwtTokenDto jwtTokenDto;
