@@ -20,8 +20,7 @@ public class UserService {
     }
 
     public User read(String email, OAuthProvider oAuthProvider) {
-        return userRepository.findByEmail(email)
-                .filter(user -> user.getOAuthProvider().equals(oAuthProvider))
+        return userRepository.findByEmailAndOAuthProvider(email, oAuthProvider)
                 .orElseThrow(() -> new GlobalException(UserExceptionCode.EMAIL_IS_NOT_FOUND));
     }
 
