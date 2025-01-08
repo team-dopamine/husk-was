@@ -8,8 +8,8 @@ public enum AuthExceptionCode implements ExceptionCode {
     EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 발송에 실패했습니다."),
     PASSWORD_MISMATCHED(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     GOOGLE_USERINFO_NOTFOUND(HttpStatus.NOT_FOUND, "Google 사용자 정보 요청에 실패했습니다."),
-    ACCESSTOKEN_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, "Google OAuth Access Token 요청에 실패했습니다.");
-
+    ACCESSTOKEN_REQUEST_FAILED(HttpStatus.UNAUTHORIZED, "Google OAuth Access Token 요청에 실패했습니다."),
+    NOT_ALLOWED_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "허용되지 않은 OAuth 타입 요청입니다.");
     HttpStatus httpStatus;
     String cause;
 
