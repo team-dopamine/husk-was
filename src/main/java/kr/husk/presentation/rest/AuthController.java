@@ -5,6 +5,7 @@ import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
+import kr.husk.application.auth.service.GitHubOAuthService;
 import kr.husk.application.auth.service.GoogleOAuthService;
 import kr.husk.common.exception.GlobalException;
 import kr.husk.domain.auth.exception.AuthExceptionCode;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthApi {
     private final AuthService authService;
     private final GoogleOAuthService googleOAuthService;
+    private final GitHubOAuthService gitHubOAuthService;
 
     @Override
     @PostMapping("/send-code")
@@ -59,6 +61,8 @@ public class AuthController implements AuthApi {
     public ResponseEntity<?> signIn(@RequestParam("type") String type, @RequestParam("code") String code) {
         if ("google".equals(type)) {
             return ResponseEntity.ok(googleOAuthService.googleSignIn(code));
+        } else if ("github".equals(type)) {
+            return ResponseEntity.ok(gitHubOAuthService.gitHubSignIn(code));
         } else {
             throw new GlobalException(AuthExceptionCode.NOT_ALLOWED_TYPE);
         }
