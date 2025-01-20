@@ -1,8 +1,10 @@
 package kr.husk.application.auth.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.husk.application.auth.dto.JwtTokenDto;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
+import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.common.exception.GlobalException;
@@ -99,6 +101,27 @@ public class AuthService {
 
         log.info("로그인에 성공하였습니다. 이메일: {}", dto.getEmail());
         return new SignInDto.Response("로그인에 성공하였습니다.", tokenDto);
+    }
+
+    @Transactional
+    public SignOutDto.Response signOut(SignOutDto.Request dto, HttpServletRequest request) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+        if (jwtProvider.validateToken(accessToken)) {
+            String refreshToken = dto.getRefreshToken().substring(7);
+            String storedRefreshToken = concurrentMapRefreshTokenRepository.read(email)
+                    .orElseThrow(() -> new GlobalException(AuthExceptionCode.REFRESH_TOKEN_NOT_FOUND));
+
+            if (!storedRefreshToken.equals(refreshToken) || !jwtProvider.validateToken(refreshToken)) {
+                throw new GlobalException(AuthExceptionCode.INVALID_REFRESH_TOKEN);
+            }
+
+            concurrentMapRefreshTokenRepository.delete(email);
+        } else {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+        log.info("로그아웃에 성공했습니다: 이메일: { " + email + " }");
+        return SignOutDto.Response.of("로그아웃에 성공하였습니다.");
     }
 
     public String readTermsOfService() {
