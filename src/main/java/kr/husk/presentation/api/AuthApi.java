@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
+import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import org.springframework.http.ResponseEntity;
@@ -64,4 +66,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "로그인 실패")
     })
     ResponseEntity<?> signIn(@RequestParam("type") String type, @RequestParam("code") String code);
+
+    @Operation(summary = "서비스 로그아웃", description = "서비스 로그아웃을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "400", description = "로그아웃 실패")
+    })
+    ResponseEntity<?> signOut(@RequestBody SignOutDto.Request dto, HttpServletRequest request);
 }
