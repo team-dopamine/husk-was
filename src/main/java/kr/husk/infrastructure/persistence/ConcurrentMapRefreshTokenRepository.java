@@ -38,7 +38,7 @@ public class ConcurrentMapRefreshTokenRepository implements RefreshTokenReposito
             return Optional.empty();
         }
 
-        if (jwtProvider.validateToken(refreshToken)) {
+        if (!jwtProvider.validateToken(refreshToken)) {
             refreshTokenMap.remove(email);
             return Optional.empty();
         }
