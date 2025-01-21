@@ -1,7 +1,9 @@
 package kr.husk.presentation.rest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
+import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
@@ -66,5 +68,11 @@ public class AuthController implements AuthApi {
         } else {
             throw new GlobalException(AuthExceptionCode.NOT_ALLOWED_TYPE);
         }
+    }
+
+    @Override
+    @PostMapping("/sign-out")
+    public ResponseEntity<?> signOut(SignOutDto.Request dto, HttpServletRequest request) {
+        return ResponseEntity.ok(authService.signOut(dto, request));
     }
 }
