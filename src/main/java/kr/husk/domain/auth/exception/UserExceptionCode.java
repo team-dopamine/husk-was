@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 public enum UserExceptionCode implements ExceptionCode {
 
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 가입된 이메일입니다."),
-    EMAIL_IS_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 이메일입니다.");
+    EMAIL_IS_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 이메일입니다."),
+    OAUTH_PASSWORD_CHANGE_DENIED(HttpStatus.FORBIDDEN, "OAuth 계정은 비밀번호를 변경할 수 없습니다.");
 
     HttpStatus httpStatus;
     String cause;
