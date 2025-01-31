@@ -1,6 +1,7 @@
 package kr.husk.presentation.rest;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.husk.application.auth.dto.ChangePasswordDto;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignOutDto;
@@ -15,6 +16,7 @@ import kr.husk.presentation.api.AuthApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -74,5 +76,11 @@ public class AuthController implements AuthApi {
     @PostMapping("/sign-out")
     public ResponseEntity<?> signOut(SignOutDto.Request dto, HttpServletRequest request) {
         return ResponseEntity.ok(authService.signOut(dto, request));
+    }
+
+    @Override
+    @PatchMapping("/user")
+    public ResponseEntity<?> updatePassword(ChangePasswordDto.Request dto, HttpServletRequest request) {
+        return ResponseEntity.ok(authService.changePassword(dto, request));
     }
 }

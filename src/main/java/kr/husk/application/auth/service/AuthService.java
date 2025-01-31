@@ -1,6 +1,7 @@
 package kr.husk.application.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.husk.application.auth.dto.ChangePasswordDto;
 import kr.husk.application.auth.dto.JwtTokenDto;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
@@ -122,6 +123,35 @@ public class AuthService {
         }
         log.info("로그아웃에 성공했습니다: 이메일: { " + email + " }");
         return SignOutDto.Response.of("로그아웃에 성공하였습니다.");
+    }
+
+    @Transactional
+    public ChangePasswordDto.Response changePassword(ChangePasswordDto.Request dto, HttpServletRequest request) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        if (!userService.isExist(email, OAuthProvider.NONE)) {
+            throw new GlobalException(UserExceptionCode.OAUTH_PASSWORD_CHANGE_DENIED);
+        }
+
+        if (!validateConfirmPassword(dto.getNewPassword(), dto.getConfirmPassword())) {
+            throw new GlobalException(AuthExceptionCode.CONFIRM_PASSWORD_NOT_EQUAL);
+        }
+
+        User user = userService.read(email, OAuthProvider.NONE);
+        if (!user.isMatched(authConfig.passwordEncoder(), dto.getNowPassword())) {
+            throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
+        }
+
+        userService.update(user, dto.getNewPassword());
+        user.encodePassword(authConfig.passwordEncoder());
+        log.info("사용자의 비밀번호가 변경되었습니다. 이메일: { " + user.getEmail() + "}");
+
+        return ChangePasswordDto.Response.of("비밀번호 변경이 완료되었습니다.");
+    }
+
+    public boolean validateConfirmPassword(String newPassword, String confirmPassword) {
+        return newPassword.equals(confirmPassword);
     }
 
     public String readTermsOfService() {
