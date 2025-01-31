@@ -53,4 +53,8 @@ public class User extends BaseEntity {
     public boolean isMatched(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
