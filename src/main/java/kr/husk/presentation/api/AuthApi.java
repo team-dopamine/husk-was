@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import kr.husk.application.auth.dto.ChangePasswordDto;
 import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignOutDto;
@@ -73,4 +74,12 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "로그아웃 실패")
     })
     ResponseEntity<?> signOut(@RequestBody SignOutDto.Request dto, HttpServletRequest request);
+
+    @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "비밀번호 변경 성공"),
+            @ApiResponse(responseCode = "400", description = "재설정 비밀번호 불일치"),
+            @ApiResponse(responseCode = "403", description = "비밀번호 변경 실패 (사유: OAuth 사용자)")
+    })
+    ResponseEntity<?> updatePassword(@Valid @RequestBody ChangePasswordDto.Request dto, HttpServletRequest request);
 }
