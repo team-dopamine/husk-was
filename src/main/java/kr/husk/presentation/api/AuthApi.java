@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.husk.application.auth.dto.ChangePasswordDto;
-import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.EmailDto;
 import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
@@ -26,12 +26,12 @@ public interface AuthApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "인증 코드 전송 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SendAuthCodeDto.Response.class)
+                            schema = @Schema(implementation = EmailDto.Response.class)
                     )
             ),
             @ApiResponse(responseCode = "400", description = "인증 코드 전송 실패")
     })
-    ResponseEntity<?> sendAuthCode(@RequestBody SendAuthCodeDto.Request dto);
+    ResponseEntity<?> sendAuthCode(@RequestBody EmailDto.Request dto);
 
     @Operation(summary = "인증 코드 검증", description = "이메일로 전송된 인증 코드를 검증하기 위한 API")
     @ApiResponses({
@@ -82,4 +82,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "403", description = "비밀번호 변경 실패 (사유: OAuth 사용자)")
     })
     ResponseEntity<?> updatePassword(@Valid @RequestBody ChangePasswordDto.Request dto, HttpServletRequest request);
+
+    @Operation(summary = "사용자 임시 비밀번호 발급", description = "임시 비밀번호 발급을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "임시 비밀번호 발급 성공"),
+            @ApiResponse(responseCode = "400", description = "임시 비밀번호 발급 실패")
+    })
+    ResponseEntity<?> resetPassword(@RequestBody EmailDto.Request dto);
 }

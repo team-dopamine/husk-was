@@ -2,7 +2,7 @@ package kr.husk.presentation.rest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.husk.application.auth.dto.ChangePasswordDto;
-import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.EmailDto;
 import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
@@ -32,7 +32,7 @@ public class AuthController implements AuthApi {
 
     @Override
     @PostMapping("/send-code")
-    public ResponseEntity<?> sendAuthCode(SendAuthCodeDto.Request dto) {
+    public ResponseEntity<?> sendAuthCode(EmailDto.Request dto) {
         return ResponseEntity.ok(authService.sendAuthCode(dto));
     }
 
@@ -82,5 +82,11 @@ public class AuthController implements AuthApi {
     @PatchMapping("/user")
     public ResponseEntity<?> updatePassword(ChangePasswordDto.Request dto, HttpServletRequest request) {
         return ResponseEntity.ok(authService.changePassword(dto, request));
+    }
+
+    @Override
+    @PostMapping("/password/reset")
+    public ResponseEntity<?> resetPassword(EmailDto.Request dto) {
+        return ResponseEntity.ok(authService.sendTemporaryPassword(dto));
     }
 }
