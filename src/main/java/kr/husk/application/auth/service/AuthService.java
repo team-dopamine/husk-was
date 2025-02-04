@@ -2,8 +2,8 @@ package kr.husk.application.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.husk.application.auth.dto.ChangePasswordDto;
+import kr.husk.application.auth.dto.EmailDto;
 import kr.husk.application.auth.dto.JwtTokenDto;
-import kr.husk.application.auth.dto.SendAuthCodeDto;
 import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
@@ -39,23 +39,21 @@ public class AuthService {
     private final ConcurrentMapRefreshTokenRepository concurrentMapRefreshTokenRepository;
 
     @Transactional
-    public SendAuthCodeDto.Response sendAuthCode(SendAuthCodeDto.Request dto) {
-        if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
-            throw new GlobalException(UserExceptionCode.EMAIL_ALREADY_EXISTS);
-        }
-
+    public EmailDto.Response sendAuthCode(EmailDto.Request dto) {
+        String subject = "[HUSK] 회원가입을 위한 인증코드 발송";
+        String text = "인증코드: ";
         String authCode = generateAuthCode();
         authCodeRepository.create(dto.getEmail(), authCode);
 
         try {
-            sendEmail(dto.getEmail(), authCode);
+            sendEmail(dto.getEmail(), subject, text + authCode);
             log.info("인증 코드가 성공적으로 전송되었습니다. 이메일: {}", dto.getEmail());
         } catch (Exception e) {
             log.error("이메일 전송 실패. 이메일: {}", dto.getEmail(), e);
             throw new GlobalException(AuthExceptionCode.EMAIL_SEND_FAILED);
         }
 
-        return SendAuthCodeDto.Response.of("인증 코드가 성공적으로 전송되었습니다.");
+        return EmailDto.Response.of("인증 코드가 성공적으로 전송되었습니다.");
     }
 
     @Transactional
@@ -150,6 +148,59 @@ public class AuthService {
         return ChangePasswordDto.Response.of("비밀번호 변경이 완료되었습니다.");
     }
 
+    @Transactional
+    public EmailDto.Response sendTemporaryPassword(EmailDto.Request dto) {
+        String subject = "[HUSK] 임시 비밀번호 발급";
+        String text = "반드시 로그인 후 비밀번호를 변경해주세요.\n임시 비밀번호: ";
+        String tempPassword = generateRandomPassword();
+        log.info("임시 비밀번호가 발급 되었습니다. 이메일 {}", dto.getEmail());
+
+        User user = userService.read(dto.getEmail(), OAuthProvider.NONE);
+        userService.update(user, tempPassword);
+        user.encodePassword(authConfig.passwordEncoder());
+
+        try {
+            sendEmail(dto.getEmail(), subject, text + tempPassword);
+            log.info("임시 비밀번호가 전송 되었습니다. 이메일: {}", dto.getEmail());
+        } catch (Exception e) {
+            log.error("임시 비밀번호 전송에 실패하였습니다. 이메일: {}", dto.getEmail(), e);
+            throw new GlobalException(AuthExceptionCode.EMAIL_SEND_FAILED);
+        }
+
+        return EmailDto.Response.of("임시 비밀번호가 전송되었습니다.");
+    }
+
+    public String generateRandomPassword() {
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String numbers = "0123456789";
+        String specialChars = "!@#$%^&*";
+
+        Random random = new Random();
+        StringBuilder password = new StringBuilder();
+
+        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
+        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
+        password.append(numbers.charAt(random.nextInt(numbers.length())));
+        password.append(specialChars.charAt(random.nextInt(specialChars.length())));
+
+        String allChars = upperCase + lowerCase + numbers + specialChars;
+        for (int i = 0; i < 4; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+
+        String shuffledPassword = password.toString();
+        char[] passwordArray = shuffledPassword.toCharArray();
+        for (int i = passwordArray.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            char temp = passwordArray[i];
+            passwordArray[i] = passwordArray[j];
+            passwordArray[j] = temp;
+        }
+
+        return new String(passwordArray);
+    }
+
     public boolean validateConfirmPassword(String newPassword, String confirmPassword) {
         return newPassword.equals(confirmPassword);
     }
@@ -228,11 +279,11 @@ public class AuthService {
         return String.format("%06d", new Random().nextInt(999999));
     }
 
-    private void sendEmail(String to, String authCode) {
+    private void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("[HUSK] 회원가입을 위한 인증코드 발송");
-        message.setText("인증코드: " + authCode);
+        message.setSubject(subject);
+        message.setText(text);
         mailSender.send(message);
     }
 }
