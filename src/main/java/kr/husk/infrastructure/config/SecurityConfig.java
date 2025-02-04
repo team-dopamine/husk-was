@@ -38,6 +38,7 @@ public class SecurityConfig {
                                         "/auth/sign-up",
                                         "/auth/sign-in",
                                         "/auth/terms-of-service",
+                                        "/auth/password/reset",
                                         "/swagger-resources/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",

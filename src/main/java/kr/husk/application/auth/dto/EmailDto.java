@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class SendAuthCodeDto {
+public class EmailRequestDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
