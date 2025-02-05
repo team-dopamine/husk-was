@@ -24,6 +24,10 @@ public class UserService {
                 .orElseThrow(() -> new GlobalException(UserExceptionCode.EMAIL_IS_NOT_FOUND));
     }
 
+    public User read(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
     public void update(User user, String newPassowrd) {
         user.updatePassword(newPassowrd);
     }
