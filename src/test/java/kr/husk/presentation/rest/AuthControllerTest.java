@@ -1,7 +1,7 @@
 package kr.husk.presentation.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.husk.application.auth.dto.SendAuthCodeDto;
+import kr.husk.application.auth.dto.EmailDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
 import kr.husk.application.auth.service.AuthService;
@@ -32,10 +32,10 @@ class AuthControllerTest {
     @Test
     void sendAuthCodeApiTest() throws Exception {
         // give
-        SendAuthCodeDto.Request dto = new SendAuthCodeDto.Request("jinlee1703@gmail.com");
+        EmailDto.Request dto = new EmailDto.Request("jinlee1703@gmail.com");
 
         // when
-        when(authService.sendAuthCode(dto)).thenReturn(SendAuthCodeDto.Response.of("인증 코드가 성공적으로 전송되었습니다."));
+        when(authService.sendAuthCode(dto)).thenReturn(EmailDto.Response.of("인증 코드가 성공적으로 전송되었습니다."));
 
         // then
         mockMvc.perform(post("/auth/send-code")

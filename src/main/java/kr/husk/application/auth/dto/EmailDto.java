@@ -9,11 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class SendAuthCodeDto {
+public class EmailDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(name = "SendAuthCode.Request", description = "인증 코드 전송 요청 DTO")
+    @Schema(name = "Email.Request", description = "메일 전송 요청 DTO")
     public static class Request {
         @NotBlank(message = "이메일은 필수 입력값입니다.")
         @Email(message = "올바른 이메일 형식이 아닙니다.")
@@ -29,7 +29,7 @@ public class SendAuthCodeDto {
 
     @Getter
     @AllArgsConstructor
-    @Schema(name = "SendAuthCode.Response", description = "인증 코드 전송 응답 DTO")
+    @Schema(name = "Email.Response", description = "메일 전송 응답 DTO")
     public static class Response {
         @Setter
         @Schema(description = "응답 메시지", example = "인증 코드가 전송되었습니다.")
