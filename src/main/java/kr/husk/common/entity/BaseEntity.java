@@ -1,6 +1,11 @@
 package kr.husk.common.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -35,5 +41,14 @@ public class BaseEntity {
 
     public boolean isDeleted() {
         return deletedAt != null;
+    }
+
+    public boolean isWithin30DaysFromDeletion() {
+        if (this.deletedAt == null) return false;
+        return ChronoUnit.DAYS.between(this.deletedAt, LocalDateTime.now()) <= 30;
+    }
+
+    public void restore() {
+        this.deletedAt = null;
     }
 }
