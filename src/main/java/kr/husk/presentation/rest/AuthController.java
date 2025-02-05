@@ -89,4 +89,10 @@ public class AuthController implements AuthApi {
     public ResponseEntity<?> resetPassword(EmailDto.Request dto) {
         return ResponseEntity.ok(authService.sendTemporaryPassword(dto));
     }
+
+    @Override
+    @PatchMapping("/withdraw")
+    public ResponseEntity<?> withdraw(HttpServletRequest request) {
+        return ResponseEntity.ok(authService.withdraw(request));
+    }
 }
