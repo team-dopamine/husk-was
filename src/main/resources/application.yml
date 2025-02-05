@@ -53,9 +53,11 @@ oauth2:
     redirect-uri: ${oauth2.google.redirect-uri}
     token-uri: ${oauth2.google.token-uri}
     user-info-uri: ${oauth2.google.user-info-uri}
+    revoke-url: ${oauth2.google.revoke-url}
   github:
     client-id: ${oauth2.github.client-id}
     client-secret: ${oauth2.github.client-secret}
     redirect-uri: ${oauth2.github.redirect-uri}
     token-uri: ${oauth2.github.token-uri}
     user-info-uri: ${oauth2.github.user-info-uri}
+    revoke-url: ${oauth2.github.revoke-url}
