@@ -13,7 +13,8 @@ public enum AuthExceptionCode implements ExceptionCode {
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 리프레시 토큰입니다."),
-    CONFIRM_PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "비밀번호 확인이 일치하지 않습니다.");
+    CONFIRM_PASSWORD_NOT_EQUAL(HttpStatus.BAD_REQUEST, "비밀번호 확인이 일치하지 않습니다."),
+    OAUTH_UNLINK_FAILED(HttpStatus.BAD_REQUEST, "계정 연결 해제에 실패하였습니다.)");
 
     HttpStatus httpStatus;
     String cause;

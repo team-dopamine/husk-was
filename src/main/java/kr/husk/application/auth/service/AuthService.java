@@ -14,10 +14,11 @@ import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.domain.auth.exception.UserExceptionCode;
 import kr.husk.domain.auth.repository.AuthCodeRepository;
+import kr.husk.domain.auth.repository.OAuthTokenRepository;
+import kr.husk.domain.auth.repository.RefreshTokenRepository;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.auth.type.OAuthProvider;
 import kr.husk.infrastructure.config.AuthConfig;
-import kr.husk.infrastructure.persistence.ConcurrentMapRefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -36,7 +37,10 @@ public class AuthService {
     private final UserService userService;
     private final AuthCodeRepository authCodeRepository;
     private final JwtProvider jwtProvider;
-    private final ConcurrentMapRefreshTokenRepository concurrentMapRefreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final OAuthTokenRepository oAuthTokenRepository;
+    private final GoogleOAuthService googleOAuthService;
+    private final GitHubOAuthService gitHubOAuthService;
 
     @Transactional
     public EmailDto.Response sendAuthCode(EmailDto.Request dto) {
@@ -70,27 +74,40 @@ public class AuthService {
 
     @Transactional
     public SignUpDto.Response signUp(SignUpDto.Request dto) {
-        if (userService.isExist(dto.getEmail(), OAuthProvider.NONE)) {
+        User user = userService.read(dto.getEmail());
+        if (user != null && user.isDeleted()) {
+            if (user.isWithin30DaysFromDeletion()) {
+                userService.update(user, dto.getPassword());
+                user.encodePassword(authConfig.passwordEncoder());
+                user.restore();
+            } else {
+                throw new GlobalException(UserExceptionCode.WITHDRAWN_USER);
+            }
+        } else if (user != null && !user.isDeleted()) {
             throw new GlobalException(UserExceptionCode.EMAIL_ALREADY_EXISTS);
+        } else {
+            User newUser = dto.toEntity();
+            newUser.encodePassword(authConfig.passwordEncoder());
+            userService.create(newUser);
+            log.info("회원가입에 성공했습니다. 이메일: {}", dto.getEmail());
         }
-        User user = dto.toEntity();
-        user.encodePassword(authConfig.passwordEncoder());
-        userService.create(user);
-        log.info("회원가입에 성공했습니다. 이메일: {}", dto.getEmail());
+
         return SignUpDto.Response.of("회원가입에 성공했습니다.");
     }
 
     @Transactional
     public SignInDto.Response signIn(SignInDto.Request dto) {
         User user = userService.read(dto.getEmail(), OAuthProvider.NONE);
+
+        if (user.isDeleted()) throw new GlobalException(UserExceptionCode.WITHDRAWN_USER);
         if (!user.isMatched(authConfig.passwordEncoder(), dto.getPassword())) {
             log.info("비밀번호가 일치하지 않습니다. 이메일: {}", dto.getEmail());
             throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
         }
 
         String accessToken = jwtProvider.generateAccessToken(user.getEmail());
-        concurrentMapRefreshTokenRepository.create(user.getEmail());
-        String refreshToken = concurrentMapRefreshTokenRepository.read(user.getEmail()).get();
+        refreshTokenRepository.create(user.getEmail());
+        String refreshToken = refreshTokenRepository.read(user.getEmail()).get();
 
         JwtTokenDto tokenDto = JwtTokenDto.builder()
                 .grantType("Bearer ")
@@ -108,19 +125,44 @@ public class AuthService {
         String email = jwtProvider.getEmail(accessToken);
         if (jwtProvider.validateToken(accessToken)) {
             String refreshToken = dto.getRefreshToken().substring(7);
-            String storedRefreshToken = concurrentMapRefreshTokenRepository.read(email)
+            String storedRefreshToken = refreshTokenRepository.read(email)
                     .orElseThrow(() -> new GlobalException(AuthExceptionCode.REFRESH_TOKEN_NOT_FOUND));
 
             if (!storedRefreshToken.equals(refreshToken) || !jwtProvider.validateToken(refreshToken)) {
                 throw new GlobalException(AuthExceptionCode.INVALID_REFRESH_TOKEN);
             }
 
-            concurrentMapRefreshTokenRepository.delete(email);
+            refreshTokenRepository.delete(email);
+            oAuthTokenRepository.delete(email);
         } else {
             throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
         }
         log.info("로그아웃에 성공했습니다: 이메일: { " + email + " }");
         return SignOutDto.Response.of("로그아웃에 성공하였습니다.");
+    }
+
+    @Transactional
+    public String withdraw(HttpServletRequest request) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        String message = "회원 탈퇴 처리가 완료되었습니다.";
+        User user = userService.read(email);
+
+        if (user.getOAuthProvider() == OAuthProvider.GOOGLE) {
+            googleOAuthService.unlink(email);
+        } else if (user.getOAuthProvider() == OAuthProvider.GITHUB) {
+            gitHubOAuthService.unlink(email);
+        }
+        user.delete();
+        oAuthTokenRepository.delete(email);
+        refreshTokenRepository.delete(email);
+
+        return message;
     }
 
     @Transactional

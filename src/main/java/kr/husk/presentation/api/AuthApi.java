@@ -89,4 +89,11 @@ public interface AuthApi {
             @ApiResponse(responseCode = "400", description = "임시 비밀번호 발급 실패")
     })
     ResponseEntity<?> resetPassword(@RequestBody EmailDto.Request dto);
+
+    @Operation(summary = "사용자 서비스 계정 탈퇴", description = "사용자 서비스 계정 탈퇴 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "계정 탈퇴 완료"),
+            @ApiResponse(responseCode = "400", description = "계정 탈퇴 실패")
+    })
+    ResponseEntity<?> withdraw(HttpServletRequest request);
 }

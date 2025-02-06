@@ -13,4 +13,5 @@ public class GitHubConfig {
     private String redirectUri;
     private String tokenUri;
     private String userInfoUri;
+    private String revokeUrl;
 }
