@@ -22,7 +22,7 @@ public class SignInDto {
         private String email;
 
         @NotBlank(message = "비밀번호는 필수 입력값입니다.")
-        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()-_=+]).{8,16}$",
+        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_=+-]).{8,16}$",
                 message = "비밀번호는 8자 이상 16자 이하이며, 숫자, 소문자, 대문자, 특수문자를 포함해야 합니다.")
         private String password;
 
