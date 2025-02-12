@@ -98,7 +98,7 @@ public class GitHubOAuthService {
         if (userInfoResponse != null) {
             return userInfoResponse;
         } else {
-            throw new GlobalException(AuthExceptionCode.GOOGLE_USERINFO_NOTFOUND);
+            throw new GlobalException(AuthExceptionCode.OAUTH_USERINFO_NOTFOUND);
         }
     }
 

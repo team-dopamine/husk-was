@@ -61,7 +61,7 @@ public interface AuthApi {
     })
     ResponseEntity<?> signIn(@Valid @RequestBody SignInDto.Request dto);
 
-    @Operation(summary = "Google OAuth 로그인", description = "Google OAuth 로그인을 위한 API")
+    @Operation(summary = "OAuth 로그인", description = "OAuth 로그인을 위한 API")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
             @ApiResponse(responseCode = "400", description = "로그인 실패")
