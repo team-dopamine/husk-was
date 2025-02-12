@@ -15,7 +15,7 @@ public class ChangePasswordDto {
     @Schema(name = "ChangePassword.Request", description = "사용자 비밀번호 재설정 요청 DTO")
     public static class Request {
         @NotBlank(message = "현재 비밀번호 입력은 필수값입니다.")
-        private String nowPassword;
+        private String currentPassword;
 
         @NotBlank(message = "새로운 비밀번호 입력은 필수값입니다.")
         @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()-_=+]).{8,16}$",
