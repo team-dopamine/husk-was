@@ -8,6 +8,7 @@ import kr.husk.application.auth.dto.SignInDto;
 import kr.husk.application.auth.dto.SignOutDto;
 import kr.husk.application.auth.dto.SignUpDto;
 import kr.husk.application.auth.dto.VerifyAuthCodeDto;
+import kr.husk.application.auth.dto.WithdrawDto;
 import kr.husk.common.exception.GlobalException;
 import kr.husk.common.jwt.util.JwtProvider;
 import kr.husk.domain.auth.entity.User;
@@ -142,7 +143,7 @@ public class AuthService {
     }
 
     @Transactional
-    public String withdraw(HttpServletRequest request) {
+    public WithdrawDto.Response withdraw(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
@@ -150,7 +151,6 @@ public class AuthService {
             throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
         }
 
-        String message = "회원 탈퇴 처리가 완료되었습니다.";
         User user = userService.read(email);
 
         if (user.getOAuthProvider() == OAuthProvider.GOOGLE) {
@@ -162,7 +162,7 @@ public class AuthService {
         oAuthTokenRepository.delete(email);
         refreshTokenRepository.delete(email);
 
-        return message;
+        return WithdrawDto.Response.of("탈퇴 처리가 완료되었습니다.");
     }
 
     @Transactional
@@ -170,22 +170,25 @@ public class AuthService {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
-        if (!userService.isExist(email, OAuthProvider.NONE)) {
-            throw new GlobalException(UserExceptionCode.OAUTH_PASSWORD_CHANGE_DENIED);
-        }
-
         if (!validateConfirmPassword(dto.getNewPassword(), dto.getConfirmPassword())) {
             throw new GlobalException(AuthExceptionCode.CONFIRM_PASSWORD_NOT_EQUAL);
         }
 
-        User user = userService.read(email, OAuthProvider.NONE);
-        if (!user.isMatched(authConfig.passwordEncoder(), dto.getNowPassword())) {
+        User user = userService.read(email);
+        if (user == null) {
+            throw new GlobalException(UserExceptionCode.EMAIL_IS_NOT_FOUND);
+        }
+        if (user.getOAuthProvider() != OAuthProvider.NONE) {
+            throw new GlobalException(UserExceptionCode.OAUTH_PASSWORD_CHANGE_DENIED);
+        }
+
+        if (!user.isMatched(authConfig.passwordEncoder(), dto.getCurrentPassword())) {
             throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
         }
 
         userService.update(user, dto.getNewPassword());
         user.encodePassword(authConfig.passwordEncoder());
-        log.info("사용자의 비밀번호가 변경되었습니다. 이메일: { " + user.getEmail() + "}");
+        log.info("사용자의 비밀번호가 변경되었습니다. 이메일: {}", user.getEmail());
 
         return ChangePasswordDto.Response.of("비밀번호 변경이 완료되었습니다.");
     }
