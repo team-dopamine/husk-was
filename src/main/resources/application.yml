@@ -1,6 +1,6 @@
 spring:
   config:
-    import: 'optional:aws-parameterstore:/config/husk/'
+    import: 'aws-parameterstore:/config/husk/'
   datasource:
     url: ${jdbc.url}
     username: ${jdbc.username}
