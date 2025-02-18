@@ -61,3 +61,7 @@ oauth2:
     token-uri: ${oauth2.github.token-uri}
     user-info-uri: ${oauth2.github.user-info-uri}
     revoke-url: ${oauth2.github.revoke-url}
+
+encryption:
+  salt: ${encryption.salt}
+  password: ${encryption.password}

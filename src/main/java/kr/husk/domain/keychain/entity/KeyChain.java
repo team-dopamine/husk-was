@@ -1,6 +1,11 @@
 package kr.husk.domain.keychain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import kr.husk.common.entity.BaseEntity;
 import kr.husk.domain.auth.entity.User;
 import lombok.AccessLevel;
@@ -16,7 +21,7 @@ public class KeyChain extends BaseEntity {
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;
-    @Column(name = "content", nullable = false, length = 1024)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Builder
