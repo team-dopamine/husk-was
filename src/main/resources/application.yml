@@ -1,6 +1,6 @@
 spring:
   config:
-    import: 'aws-parameterstore:/config/husk/'
+    import: 'optional:aws-parameterstore:/config/husk/'
   datasource:
     url: ${jdbc.url}
     username: ${jdbc.username}
@@ -61,3 +61,7 @@ oauth2:
     token-uri: ${oauth2.github.token-uri}
     user-info-uri: ${oauth2.github.user-info-uri}
     revoke-url: ${oauth2.github.revoke-url}
+
+encryption:
+  salt: ${encryption.salt}
+  password: ${encryption.password}
