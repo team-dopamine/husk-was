@@ -44,7 +44,7 @@ public class KeyChainDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(name = "KeyChain.KeyChainInfo", description = "키체인 등록 응답 DTO")
+    @Schema(name = "KeyChain.KeyChainInfo", description = "키체인 조회 응답 DTO")
     public static class KeyChainInfo {
         @Schema(description = "키체인 id", example = "1")
         private Long id;
