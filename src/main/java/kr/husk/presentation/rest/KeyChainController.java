@@ -6,6 +6,7 @@ import kr.husk.domain.keychain.service.KeyChainService;
 import kr.husk.presentation.api.KeyChainApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,5 +22,11 @@ public class KeyChainController implements KeyChainApi {
     @PostMapping("")
     public ResponseEntity<?> create(HttpServletRequest request, KeyChainDto.Request dto) {
         return ResponseEntity.ok(keyChainService.create(request, dto));
+    }
+
+    @Override
+    @GetMapping("")
+    public ResponseEntity<?> read(HttpServletRequest request) {
+        return ResponseEntity.ok(keyChainService.read(request));
     }
 }
