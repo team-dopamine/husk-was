@@ -10,8 +10,10 @@ import kr.husk.common.entity.BaseEntity;
 import kr.husk.domain.auth.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity(name = "keychain")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class KeyChain extends BaseEntity {

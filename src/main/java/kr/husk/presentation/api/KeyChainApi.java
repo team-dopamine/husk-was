@@ -24,4 +24,15 @@ public interface KeyChainApi {
             @ApiResponse(responseCode = "400", description = "키체인 등록 실패")
     })
     ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody KeyChainDto.Request dto);
+
+    @Operation(summary = "키체인 조회", description = "키체인 조회를 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "키체인 조회 완료",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KeyChainDto.Response.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "키체인 조회 실패")
+    })
+    ResponseEntity<?> read(HttpServletRequest request);
 }

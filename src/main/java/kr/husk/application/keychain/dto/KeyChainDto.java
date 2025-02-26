@@ -2,10 +2,15 @@ package kr.husk.application.keychain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class KeyChainDto {
     @Getter
@@ -32,6 +37,28 @@ public class KeyChainDto {
 
         public static Response of(String message) {
             return new Response(message);
+        }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(name = "KeyChain.KeyChainInfo", description = "키체인 조회 응답 DTO")
+    public static class KeyChainInfo {
+        @Schema(description = "키체인 id", example = "1")
+        private Long id;
+
+        @Schema(description = "키체인명", example = "husk")
+        private String name;
+
+        public static List<KeyChainInfo> from(List<KeyChain> keyChains) {
+            return keyChains.stream()
+                    .map(keyChain -> KeyChainInfo.builder()
+                            .id(keyChain.getId())
+                            .name(keyChain.getName())
+                            .build())
+                    .collect(Collectors.toUnmodifiableList());
         }
     }
 }

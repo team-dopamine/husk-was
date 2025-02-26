@@ -51,4 +51,8 @@ public class BaseEntity {
     public void restore() {
         this.deletedAt = null;
     }
+
+    public Long getId() {
+        return this.id;
+    }
 }

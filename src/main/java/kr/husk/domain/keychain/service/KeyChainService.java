@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,18 @@ public class KeyChainService {
         keyChainRepository.save(keyChain);
         log.info(email + "님의 키체인 [" + dto.getName() + "]이(가) 등록되었습니다.");
         return KeyChainDto.Response.of("키체인 등록이 완료되었습니다.");
+    }
+
+    public List<KeyChainDto.KeyChainInfo> read(HttpServletRequest request) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        User user = userService.read(email);
+        return KeyChainDto.KeyChainInfo.from(user.getKeyChains());
     }
 
 }
