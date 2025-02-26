@@ -32,4 +32,12 @@ public class KeyChain extends BaseEntity {
         this.name = name;
         this.content = content;
     }
+
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public void changeContent(String content) {
+        this.content = content;
+    }
 }
