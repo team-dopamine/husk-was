@@ -29,10 +29,21 @@ public interface KeyChainApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "키체인 조회 완료",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = KeyChainDto.Response.class)
+                            schema = @Schema(implementation = KeyChainDto.KeyChainInfo.class)
                     )
             ),
             @ApiResponse(responseCode = "400", description = "키체인 조회 실패")
     })
     ResponseEntity<?> read(HttpServletRequest request);
+
+    @Operation(summary = "키체인 수정", description = "키체인 수정을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "키체인 수정 완료",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KeyChainDto.Response.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "키체인 수정 실패")
+    })
+    ResponseEntity<?> update(HttpServletRequest request, @RequestBody KeyChainDto.KeyChainInfo dto);
 }

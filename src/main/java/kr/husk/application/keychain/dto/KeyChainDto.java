@@ -52,6 +52,9 @@ public class KeyChainDto {
         @Schema(description = "키체인명", example = "husk")
         private String name;
 
+        @Schema(description = "키체인 내용", example = "Mxsa59s*2d^dsa")
+        private String content;
+
         public static List<KeyChainInfo> from(List<KeyChain> keyChains) {
             return keyChains.stream()
                     .map(keyChain -> KeyChainInfo.builder()
