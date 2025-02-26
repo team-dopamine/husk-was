@@ -40,7 +40,7 @@ public interface KeyChainApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "키체인 수정 완료",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = KeyChainDto.KeyChainInfo.class)
+                            schema = @Schema(implementation = KeyChainDto.Response.class)
                     )
             ),
             @ApiResponse(responseCode = "400", description = "키체인 수정 실패")
