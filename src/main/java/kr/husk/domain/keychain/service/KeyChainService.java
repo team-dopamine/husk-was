@@ -9,6 +9,7 @@ import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.keychain.entity.KeyChain;
+import kr.husk.domain.keychain.exception.KeyChainExceptionCode;
 import kr.husk.domain.keychain.repository.KeyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,26 @@ public class KeyChainService {
 
         User user = userService.read(email);
         return KeyChainDto.KeyChainInfo.from(user.getKeyChains());
+    }
+
+    public KeyChainDto.Response update(HttpServletRequest request, KeyChainDto.KeyChainInfo dto) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        KeyChain keyChain = keyChainRepository.findById(dto.getId()).get();
+        if (keyChain == null) {
+            throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
+        }
+
+        keyChain.changeName(dto.getName());
+        keyChain.changeContent(encryptionService.encrypt(dto.getContent()));
+        keyChainRepository.save(keyChain);
+
+        return KeyChainDto.Response.of("키체인 수정이 완료되었습니다.");
     }
 
 }
