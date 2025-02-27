@@ -78,4 +78,23 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 수정이 완료되었습니다.");
     }
 
+    public KeyChainDto.Response delete(HttpServletRequest request, Long id) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        KeyChain keyChain = keyChainRepository.findById(id).get();
+        if (keyChain == null) {
+            throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
+        }
+
+        keyChain.delete();
+        keyChainRepository.save(keyChain);
+        log.info("사용자 {}의 {}번 키체인이 삭제되었습니다.", email, id);
+
+        return KeyChainDto.Response.of("키체인 삭제가 완료되었습니다.");
+    }
+
 }
