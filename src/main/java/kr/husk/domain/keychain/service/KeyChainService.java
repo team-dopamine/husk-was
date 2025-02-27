@@ -86,7 +86,7 @@ public class KeyChainService {
         }
 
         KeyChain keyChain = keyChainRepository.findById(id).get();
-        if (keyChain == null) {
+        if (keyChain == null || keyChain.isDeleted()) {
             throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
         }
 
