@@ -166,24 +166,33 @@ public class AuthService {
     }
 
     @Transactional
-    public ChangePasswordDto.Response changePassword(ChangePasswordDto.Request dto, HttpServletRequest request) {
+    public ChangePasswordDto.Response validateCurrentPassword(ChangePasswordDto.CurrentPasswordRequest dto, HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
+        User user = userService.read(email);
+        if (!user.isMatched(authConfig.passwordEncoder(), dto.getCurrentPassword())) {
+            throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
+        }
+        return ChangePasswordDto.Response.of("사용자의 비밀번호가 일치합니다.");
+    }
+
+    @Transactional
+    public ChangePasswordDto.Response changePassword(ChangePasswordDto.Request dto, HttpServletRequest request) {
         if (!validateConfirmPassword(dto.getNewPassword(), dto.getConfirmPassword())) {
             throw new GlobalException(AuthExceptionCode.CONFIRM_PASSWORD_NOT_EQUAL);
         }
 
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
         User user = userService.read(email);
-        if (user == null) {
-            throw new GlobalException(UserExceptionCode.EMAIL_IS_NOT_FOUND);
-        }
         if (user.getOAuthProvider() != OAuthProvider.NONE) {
             throw new GlobalException(UserExceptionCode.OAUTH_PASSWORD_CHANGE_DENIED);
         }
 
-        if (!user.isMatched(authConfig.passwordEncoder(), dto.getCurrentPassword())) {
-            throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
+        if (user.isMatched(authConfig.passwordEncoder(), dto.getNewPassword())) {
+            throw new GlobalException(UserExceptionCode.PASSWORD_MUST_BE_DIFFERENT);
         }
 
         userService.update(user, dto.getNewPassword());

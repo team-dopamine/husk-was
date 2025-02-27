@@ -12,11 +12,17 @@ public class ChangePasswordDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(name = "ChangePassword.Request", description = "사용자 비밀번호 재설정 요청 DTO")
-    public static class Request {
+    @Schema(name = "ChangePassword.CurrentPasswordRequest", description = "현재 비밀번호 확인 요청 DTO")
+    public static class CurrentPasswordRequest {
         @NotBlank(message = "현재 비밀번호 입력은 필수값입니다.")
         private String currentPassword;
+    }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(name = "ChangePassword.Request", description = "비밀번호 변경 요청 DTO")
+    public static class Request {
         @NotBlank(message = "새로운 비밀번호 입력은 필수값입니다.")
         @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()-_=+]).{8,16}$",
                 message = "비밀번호는 8자 이상 16자 이하이며, 숫자, 소문자, 대문자, 특수문자를 포함해야 합니다.")

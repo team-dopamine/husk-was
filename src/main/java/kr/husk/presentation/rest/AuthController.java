@@ -79,7 +79,13 @@ public class AuthController implements AuthApi {
     }
 
     @Override
-    @PatchMapping("/user")
+    @PostMapping("/password/verify")
+    public ResponseEntity<?> verifyPassword(ChangePasswordDto.CurrentPasswordRequest dto, HttpServletRequest request) {
+        return ResponseEntity.ok(authService.validateCurrentPassword(dto, request));
+    }
+
+    @Override
+    @PatchMapping("/users")
     public ResponseEntity<?> updatePassword(ChangePasswordDto.Request dto, HttpServletRequest request) {
         return ResponseEntity.ok(authService.changePassword(dto, request));
     }

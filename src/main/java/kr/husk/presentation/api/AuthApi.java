@@ -75,6 +75,13 @@ public interface AuthApi {
     })
     ResponseEntity<?> signOut(@RequestBody SignOutDto.Request dto, HttpServletRequest request);
 
+    @Operation(summary = "사용자 현재 비밀번호 확인 요청", description = "사용자의 현재 비밀번호를 확인하기 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "비밀번호 변경 성공"),
+            @ApiResponse(responseCode = "400", description = "재설정 비밀번호 불일치")
+    })
+    ResponseEntity<?> verifyPassword(@Valid @RequestBody ChangePasswordDto.CurrentPasswordRequest dto, HttpServletRequest request);
+
     @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정을 위한 API")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "비밀번호 변경 성공"),
