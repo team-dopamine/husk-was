@@ -2,6 +2,7 @@ package kr.husk.application.keychain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import kr.husk.common.service.EncryptionService;
 import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -63,6 +64,14 @@ public class KeyChainDto {
                             .name(keyChain.getName())
                             .build())
                     .collect(Collectors.toUnmodifiableList());
+        }
+
+        public static KeyChainInfo from(KeyChain keyChain, EncryptionService encryptionService) {
+            return KeyChainInfo.builder()
+                    .id(keyChain.getId())
+                    .name(keyChain.getName())
+                    .content(encryptionService.decrypt(keyChain.getContent()))
+                    .build();
         }
     }
 }
