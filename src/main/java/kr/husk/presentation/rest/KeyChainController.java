@@ -36,4 +36,10 @@ public class KeyChainController implements KeyChainApi {
     public ResponseEntity<?> update(HttpServletRequest request, KeyChainDto.KeyChainInfo dto) {
         return ResponseEntity.ok(keyChainService.update(request, dto));
     }
+
+    @Override
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> delete(HttpServletRequest request, Long id) {
+        return ResponseEntity.ok(keyChainService.delete(request, id));
+    }
 }

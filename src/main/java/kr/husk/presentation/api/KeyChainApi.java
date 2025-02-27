@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.husk.application.keychain.dto.KeyChainDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "[키체인 관련 API]", description = "키체인(키페어) 관련 API")
@@ -46,4 +47,15 @@ public interface KeyChainApi {
             @ApiResponse(responseCode = "400", description = "키체인 수정 실패")
     })
     ResponseEntity<?> update(HttpServletRequest request, @RequestBody KeyChainDto.KeyChainInfo dto);
+
+    @Operation(summary = "키체인 삭제", description = "키체인 삭제를 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "키체인 삭제 완료",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KeyChainDto.Response.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "키체인 삭제 실패")
+    })
+    ResponseEntity<?> delete(HttpServletRequest request, @PathVariable Long id);
 }

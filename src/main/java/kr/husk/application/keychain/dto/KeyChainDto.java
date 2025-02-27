@@ -57,6 +57,7 @@ public class KeyChainDto {
 
         public static List<KeyChainInfo> from(List<KeyChain> keyChains) {
             return keyChains.stream()
+                    .filter(keyChain -> keyChain.isDeleted() == false)
                     .map(keyChain -> KeyChainInfo.builder()
                             .id(keyChain.getId())
                             .name(keyChain.getName())
