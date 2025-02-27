@@ -97,4 +97,17 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 삭제가 완료되었습니다.");
     }
 
+    public KeyChainDto.KeyChainInfo decrypt(HttpServletRequest request, Long id) {
+        String accessToken = jwtProvider.resolveToken(request);
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        KeyChain keyChain = keyChainRepository.findById(id).get();
+        if (keyChain == null || keyChain.isDeleted()) {
+            throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
+        }
+
+        return KeyChainDto.KeyChainInfo.from(keyChain, encryptionService);
+    }
 }

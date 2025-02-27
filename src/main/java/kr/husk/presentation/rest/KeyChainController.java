@@ -42,4 +42,10 @@ public class KeyChainController implements KeyChainApi {
     public ResponseEntity<?> delete(HttpServletRequest request, Long id) {
         return ResponseEntity.ok(keyChainService.delete(request, id));
     }
+
+    @Override
+    @GetMapping("/{id}/decrypt")
+    public ResponseEntity<?> decryptContent(HttpServletRequest request, Long id) {
+        return ResponseEntity.ok(keyChainService.decrypt(request, id));
+    }
 }
