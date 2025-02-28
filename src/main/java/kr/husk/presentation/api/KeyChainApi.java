@@ -58,4 +58,15 @@ public interface KeyChainApi {
             @ApiResponse(responseCode = "400", description = "키체인 삭제 실패")
     })
     ResponseEntity<?> delete(HttpServletRequest request, @PathVariable Long id);
+
+    @Operation(summary = "키체인 암호 복호화", description = "키체인 암호 복호화를 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "키체인 복호화 완료",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KeyChainDto.Response.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "키체인 복호화 실패")
+    })
+    ResponseEntity<?> decryptContent(HttpServletRequest request, @PathVariable Long id);
 }

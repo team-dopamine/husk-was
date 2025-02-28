@@ -19,4 +19,9 @@ public class EncryptionService {
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
+    public String decrypt(String encryptedValue) {
+        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedValue);
+        byte[] decryptedBytes = bytesEncryptor.decrypt(encryptedBytes);
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
+    }
 }
