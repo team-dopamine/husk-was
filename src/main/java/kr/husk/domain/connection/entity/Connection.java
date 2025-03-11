@@ -1,6 +1,11 @@
 package kr.husk.domain.connection.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import kr.husk.common.entity.BaseEntity;
 import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.keychain.entity.KeyChain;
@@ -45,5 +50,17 @@ public class Connection extends BaseEntity {
         this.host = host;
         this.username = username;
         this.port = port;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getPort() {
+        return port;
     }
 }
