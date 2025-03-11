@@ -58,6 +58,16 @@ public class KeyChainService {
         return KeyChainDto.KeyChainInfo.from(user.getKeyChains());
     }
 
+    public KeyChain read(User user, String name) {
+        List<KeyChain> keyChainList = user.getKeyChains();
+        for (KeyChain keyChain : keyChainList) {
+            if (keyChain.getName().equals(name)) {
+                return keyChain;
+            }
+        }
+        return null;
+    }
+
     public KeyChainDto.Response update(HttpServletRequest request, KeyChainDto.KeyChainInfo dto) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
