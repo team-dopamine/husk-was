@@ -5,8 +5,12 @@ import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.connection.entity.Connection;
 import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConnectionInfoDto {
 
@@ -41,6 +45,34 @@ public class ConnectionInfoDto {
 
         public static Response of(String message) {
             return new Response(message);
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @Schema(name = "ConnectionInfo.Summary", description = "SSH 커넥션 조회에 대한 단순 정보 응답 DTO")
+    public static class Summary {
+        private Long id;
+        private String name;
+        private String host;
+        private String port;
+
+        public static List<Summary> from(List<Connection> connections) {
+            return connections.stream()
+                    .filter(connection -> connection.isDeleted() == false)
+                    .map(connection -> Summary.builder()
+                            .id(connection.getId())
+                            .name(connection.getName())
+                            .host(masking(connection.getHost()))
+                            .port(connection.getPort())
+                            .build())
+                    .collect(Collectors.toUnmodifiableList());
+        }
+
+        private static String masking(String host) {
+            String[] parts = host.split("\\.");
+            return parts[0] + "." + parts[1] + ".*.*";
         }
     }
 }
