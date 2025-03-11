@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,5 +48,17 @@ public class ConnectionService {
         connectionRepository.save(connection);
 
         return ConnectionInfoDto.Response.of("SSH 커넥션이 성공적으로 저장되었습니다.");
+    }
+
+    public List<ConnectionInfoDto.Summary> read(HttpServletRequest request) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        User user = userService.read(email);
+        return ConnectionInfoDto.Summary.from(user.getConnections());
     }
 }
