@@ -6,6 +6,7 @@ import kr.husk.domain.connection.service.ConnectionService;
 import kr.husk.presentation.api.ConnectionApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,4 +23,11 @@ public class ConnectionController implements ConnectionApi {
     public ResponseEntity<?> create(HttpServletRequest request, ConnectionInfoDto.Request dto) {
         return ResponseEntity.ok(connectionService.create(request, dto));
     }
+
+    @Override
+    @GetMapping("")
+    public ResponseEntity<?> read(HttpServletRequest request) {
+        return ResponseEntity.ok(connectionService.read(request));
+    }
+
 }
