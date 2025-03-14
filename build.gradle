@@ -53,6 +53,12 @@ dependencies {
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-orgjson', version: '0.11.2'
     implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.30.1'
+
+    // Web Socket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // SSH Connection
+    implementation 'com.jcraft:jsch:0.1.55'
 }
 
 tasks.named('test') {
