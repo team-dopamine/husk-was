@@ -30,4 +30,10 @@ public class ConnectionController implements ConnectionApi {
         return ResponseEntity.ok(connectionService.read(request));
     }
 
+    @Override
+    @PostMapping("/{id}/ssh-session")
+    public ResponseEntity<?> connect(HttpServletRequest request, Long id) {
+        return ResponseEntity.ok(connectionService.connect(request, id));
+    }
+
 }

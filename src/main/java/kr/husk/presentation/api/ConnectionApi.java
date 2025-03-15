@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.husk.application.connection.dto.ConnectionInfoDto;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "[커넥션 관련 API]", description = "사용자 SSH 커넥션 관련 API")
@@ -32,4 +33,12 @@ public interface ConnectionApi {
     })
     ResponseEntity<?> read(HttpServletRequest request);
 
+    @Operation(summary = "커넥션 접속 요청", description = "커넥션 접속 요청을 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "커넥션 접속 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ConnectionInfoDto.Response.class))),
+            @ApiResponse(responseCode = "400", description = "커넥션 접속 실패")
+    })
+    ResponseEntity<?> connect(HttpServletRequest request, @PathVariable Long id);
 }
