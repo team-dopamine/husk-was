@@ -8,6 +8,7 @@ import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.connection.entity.Connection;
+import kr.husk.domain.connection.exception.ConnectionExceptionCode;
 import kr.husk.domain.connection.repository.ConnectionRepository;
 import kr.husk.domain.keychain.entity.KeyChain;
 import kr.husk.domain.keychain.exception.KeyChainExceptionCode;
@@ -60,5 +61,23 @@ public class ConnectionService {
 
         User user = userService.read(email);
         return ConnectionInfoDto.Summary.from(user.getConnections());
+    }
+
+    public Connection read(Long id) {
+        return connectionRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND));
+    }
+
+    public ConnectionInfoDto.Response connect(HttpServletRequest request, Long id) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        if (!jwtProvider.validateToken(accessToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        }
+
+        Connection connection = read(id);
+
+        return ConnectionInfoDto.Response.of("커넥션 접속에 성공하였습니다.");
     }
 }

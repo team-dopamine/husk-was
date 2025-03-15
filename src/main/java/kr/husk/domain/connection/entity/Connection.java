@@ -11,11 +11,13 @@ import kr.husk.domain.auth.entity.User;
 import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity(name = "connection")
+@Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Connection extends BaseEntity {
@@ -50,17 +52,5 @@ public class Connection extends BaseEntity {
         this.host = host;
         this.username = username;
         this.port = port;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public String getPort() {
-        return port;
     }
 }

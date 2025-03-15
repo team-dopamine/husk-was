@@ -1,8 +1,11 @@
 package kr.husk.infrastructure.websocket;
 
 import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import kr.husk.domain.connection.entity.Connection;
 import kr.husk.domain.connection.service.ConnectionService;
+import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -11,6 +14,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -59,39 +63,39 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void connectToSsh(WebSocketSession webSocketSession, Long connectionId) throws Exception {
-//        Connection connection = connectionService.read(connectionId);
-//        KeyChain keyChain = connection.getKeyChain();
-//
-//        JSch jsch = new JSch();
-//        byte[] privateKeyBytes = keyChain.getContent().getBytes(StandardCharsets.UTF_8);
-//        jsch.addIdentity(connection.getUsername(), privateKeyBytes, null, null);
-//
-//        Session sshSession = jsch.getSession(connection.getUsername(), connection.getHost(), Integer.parseInt(connection.getPort()));
-//        sshSession.setConfig("StrictHostKeyChecking", "no");
-//        sshSession.connect();
-//
-//        ChannelShell channel = (ChannelShell) sshSession.openChannel("shell");
-//        channel.setPty(true);
-//        InputStream inputStream = channel.getInputStream();
-//        OutputStream outputStream = channel.getOutputStream();
-//        channel.connect();
-//
-//        sshSessions.put(webSocketSession, sshSession);
-//        sshChannels.put(webSocketSession, channel);
-//
-//        new Thread(() -> {
-//            try {
-//                byte[] buffer = new byte[1024];
-//                int read;
-//                while ((read = inputStream.read(buffer)) != -1) {
-//                    webSocketSession.sendMessage(new TextMessage(new String(buffer, 0, read, StandardCharsets.UTF_8)));
-//                }
-//            } catch (Exception e) {
-//                log.error("SSH 출력 읽기 중 오류 발생", e);
-//            }
-//        }).start();
-//
-//        log.info("SSH 세션이 생성되었습니다: {}", sshSession);
+        Connection connection = connectionService.read(connectionId);
+        KeyChain keyChain = connection.getKeyChain();
+
+        JSch jsch = new JSch();
+        byte[] privateKeyBytes = keyChain.getContent().getBytes(StandardCharsets.UTF_8);
+        jsch.addIdentity(connection.getUsername(), privateKeyBytes, null, null);
+
+        Session sshSession = jsch.getSession(connection.getUsername(), connection.getHost(), Integer.parseInt(connection.getPort()));
+        sshSession.setConfig("StrictHostKeyChecking", "no");
+        sshSession.connect();
+
+        ChannelShell channel = (ChannelShell) sshSession.openChannel("shell");
+        channel.setPty(true);
+        InputStream inputStream = channel.getInputStream();
+        OutputStream outputStream = channel.getOutputStream();
+        channel.connect();
+
+        sshSessions.put(webSocketSession, sshSession);
+        sshChannels.put(webSocketSession, channel);
+
+        new Thread(() -> {
+            try {
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = inputStream.read(buffer)) != -1) {
+                    webSocketSession.sendMessage(new TextMessage(new String(buffer, 0, read, StandardCharsets.UTF_8)));
+                }
+            } catch (Exception e) {
+                log.error("SSH 출력 읽기 중 오류 발생", e);
+            }
+        }).start();
+
+        log.info("SSH 세션이 생성되었습니다: {}", sshSession);
     }
 
     private void sendCommandToSsh(WebSocketSession webSocketSession, String command) throws Exception {
