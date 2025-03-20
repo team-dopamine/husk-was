@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/connections")
+@RequestMapping("/api/v1/connections")
 public class ConnectionController implements ConnectionApi {
 
     private final ConnectionService connectionService;
