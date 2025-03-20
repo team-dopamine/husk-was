@@ -38,7 +38,7 @@ class AuthControllerTest {
         when(authService.sendAuthCode(dto)).thenReturn(EmailDto.Response.of("인증 코드가 성공적으로 전송되었습니다."));
 
         // then
-        mockMvc.perform(post("/auth/send-code")
+        mockMvc.perform(post("/api/v1/auth/send-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
@@ -53,7 +53,7 @@ class AuthControllerTest {
         when(authService.verifyAuthCode(dto)).thenReturn(VerifyAuthCodeDto.Response.of("인증에 성공했습니다."));
 
         // then
-        mockMvc.perform(post("/auth/verify-code")
+        mockMvc.perform(post("/api/v1/auth/verify-code")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
@@ -68,7 +68,7 @@ class AuthControllerTest {
         when(authService.signUp(dto)).thenReturn(SignUpDto.Response.of("회원가입에 성공했습니다."));
 
         // then
-        mockMvc.perform(post("/auth/sign-up")
+        mockMvc.perform(post("/api/v1/auth/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());
