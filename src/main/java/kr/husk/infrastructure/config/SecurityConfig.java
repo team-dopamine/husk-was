@@ -33,12 +33,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests.requestMatchers(
-                                        "/auth/send-code",
-                                        "/auth/verify-code",
-                                        "/auth/sign-up",
-                                        "/auth/sign-in",
-                                        "/auth/terms-of-service",
-                                        "/auth/password/reset",
+                                        "/api/v1/auth/send-code",
+                                        "/api/v1/auth/verify-code",
+                                        "/api/v1/auth/sign-up",
+                                        "/api/v1/auth/sign-in",
+                                        "/api/v1/auth/terms-of-service",
+                                        "/api/v1/auth/password/reset",
                                         "/swagger-resources/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
