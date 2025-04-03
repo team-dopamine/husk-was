@@ -46,7 +46,7 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 등록이 완료되었습니다.");
     }
 
-    public List<KeyChainDto.KeyChainInfo> read(HttpServletRequest request) {
+    public List<KeyChainDto.Overview> read(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
@@ -55,20 +55,20 @@ public class KeyChainService {
         }
 
         User user = userService.read(email);
-        return KeyChainDto.KeyChainInfo.from(user.getKeyChains());
+        return KeyChainDto.Overview.from(user.getKeyChains());
     }
 
     public KeyChain read(User user, String name) {
         List<KeyChain> keyChainList = user.getKeyChains();
         for (KeyChain keyChain : keyChainList) {
-            if (keyChain.getName().equals(name)) {
+            if (keyChain.getName().equals(name) && !keyChain.isDeleted()) {
                 return keyChain;
             }
         }
         return null;
     }
 
-    public KeyChainDto.Response update(HttpServletRequest request, KeyChainDto.KeyChainInfo dto) {
+    public KeyChainDto.Response update(HttpServletRequest request, KeyChainDto.UpdateRequest dto) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
@@ -77,7 +77,7 @@ public class KeyChainService {
         }
 
         KeyChain keyChain = keyChainRepository.findById(dto.getId()).get();
-        if (keyChain == null) {
+        if (!isAccessible(keyChain, email)) {
             throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
         }
 
@@ -96,7 +96,7 @@ public class KeyChainService {
         }
 
         KeyChain keyChain = keyChainRepository.findById(id).get();
-        if (keyChain == null || keyChain.isDeleted()) {
+        if (!isAccessible(keyChain, email)) {
             throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
         }
 
@@ -107,17 +107,22 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 삭제가 완료되었습니다.");
     }
 
-    public KeyChainDto.KeyChainInfo decrypt(HttpServletRequest request, Long id) {
+    public KeyChainDto.Payload decrypt(HttpServletRequest request, Long id) {
         String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
         if (!jwtProvider.validateToken(accessToken)) {
             throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
         }
 
         KeyChain keyChain = keyChainRepository.findById(id).get();
-        if (keyChain == null || keyChain.isDeleted()) {
+        if (!isAccessible(keyChain, email)) {
             throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
         }
 
-        return KeyChainDto.KeyChainInfo.from(keyChain, encryptionService);
+        return KeyChainDto.Payload.from(keyChain, encryptionService);
+    }
+
+    private boolean isAccessible(KeyChain keyChain, String email) {
+        return keyChain != null && !keyChain.isDeleted() && keyChain.getUser().getEmail().equals(email);
     }
 }
