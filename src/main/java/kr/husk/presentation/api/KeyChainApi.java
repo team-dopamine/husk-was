@@ -26,11 +26,11 @@ public interface KeyChainApi {
     })
     ResponseEntity<?> create(HttpServletRequest request, @Valid @RequestBody KeyChainDto.Request dto);
 
-    @Operation(summary = "키체인 조회", description = "키체인 조회를 위한 API")
+    @Operation(summary = "키체인 조회[목록]", description = "Dashboard 키체인 목록 조회를 위한 API")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "키체인 조회 완료",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = KeyChainDto.KeyChainInfo.class)
+                            schema = @Schema(implementation = KeyChainDto.Overview.class)
                     )
             ),
             @ApiResponse(responseCode = "400", description = "키체인 조회 실패")
@@ -46,7 +46,7 @@ public interface KeyChainApi {
             ),
             @ApiResponse(responseCode = "400", description = "키체인 수정 실패")
     })
-    ResponseEntity<?> update(HttpServletRequest request, @RequestBody KeyChainDto.KeyChainInfo dto);
+    ResponseEntity<?> update(HttpServletRequest request, @Valid @RequestBody KeyChainDto.UpdateRequest dto);
 
     @Operation(summary = "키체인 삭제", description = "키체인 삭제를 위한 API")
     @ApiResponses({
@@ -63,7 +63,7 @@ public interface KeyChainApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "키체인 복호화 완료",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = KeyChainDto.Response.class)
+                            schema = @Schema(implementation = KeyChainDto.Payload.class)
                     )
             ),
             @ApiResponse(responseCode = "400", description = "키체인 복호화 실패")
