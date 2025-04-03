@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ConnectionExceptionCode implements ExceptionCode {
 
-    CONNECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 커넥션이 존재하지 않습니다.");
+    CONNECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 커넥션입니다.");
 
     HttpStatus httpStatus;
     String cause;
