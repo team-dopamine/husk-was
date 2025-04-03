@@ -124,20 +124,18 @@ public class AuthService {
     public SignOutDto.Response signOut(SignOutDto.Request dto, HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
-        if (jwtProvider.validateToken(accessToken)) {
-            String refreshToken = dto.getRefreshToken().substring(7);
-            String storedRefreshToken = refreshTokenRepository.read(email)
-                    .orElseThrow(() -> new GlobalException(AuthExceptionCode.REFRESH_TOKEN_NOT_FOUND));
 
-            if (!storedRefreshToken.equals(refreshToken) || !jwtProvider.validateToken(refreshToken)) {
-                throw new GlobalException(AuthExceptionCode.INVALID_REFRESH_TOKEN);
-            }
+        String refreshToken = dto.getRefreshToken().substring(7);
+        String storedRefreshToken = refreshTokenRepository.read(email)
+                .orElseThrow(() -> new GlobalException(AuthExceptionCode.REFRESH_TOKEN_NOT_FOUND));
 
-            refreshTokenRepository.delete(email);
-            oAuthTokenRepository.delete(email);
-        } else {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
+        if (!storedRefreshToken.equals(refreshToken) || !jwtProvider.validateToken(refreshToken)) {
+            throw new GlobalException(AuthExceptionCode.INVALID_REFRESH_TOKEN);
         }
+
+        refreshTokenRepository.delete(email);
+        oAuthTokenRepository.delete(email);
+
         log.info("로그아웃에 성공했습니다: 이메일: { " + email + " }");
         return SignOutDto.Response.of("로그아웃에 성공하였습니다.");
     }
@@ -146,10 +144,6 @@ public class AuthService {
     public WithdrawDto.Response withdraw(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
-
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
 
         User user = userService.read(email);
 

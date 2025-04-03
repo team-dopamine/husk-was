@@ -6,7 +6,6 @@ import kr.husk.common.exception.GlobalException;
 import kr.husk.common.jwt.util.JwtProvider;
 import kr.husk.common.service.EncryptionService;
 import kr.husk.domain.auth.entity.User;
-import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.keychain.entity.KeyChain;
 import kr.husk.domain.keychain.exception.KeyChainExceptionCode;
@@ -30,10 +29,6 @@ public class KeyChainService {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
-
         User user = userService.read(email);
         KeyChain keyChain = KeyChain.builder()
                 .user(user)
@@ -49,10 +44,6 @@ public class KeyChainService {
     public List<KeyChainDto.Overview> read(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
-
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
 
         User user = userService.read(email);
         return KeyChainDto.Overview.from(user.getKeyChains());
@@ -72,10 +63,6 @@ public class KeyChainService {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
-
         KeyChain keyChain = keyChainRepository.findById(dto.getId()).get();
         if (!isAccessible(keyChain, email)) {
             throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
@@ -91,9 +78,6 @@ public class KeyChainService {
     public KeyChainDto.Response delete(HttpServletRequest request, Long id) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
 
         KeyChain keyChain = keyChainRepository.findById(id).get();
         if (!isAccessible(keyChain, email)) {
@@ -110,9 +94,6 @@ public class KeyChainService {
     public KeyChainDto.Payload decrypt(HttpServletRequest request, Long id) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
 
         KeyChain keyChain = keyChainRepository.findById(id).get();
         if (!isAccessible(keyChain, email)) {

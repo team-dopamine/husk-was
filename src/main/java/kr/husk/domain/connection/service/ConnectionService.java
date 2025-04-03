@@ -5,7 +5,6 @@ import kr.husk.application.connection.dto.ConnectionInfoDto;
 import kr.husk.common.exception.GlobalException;
 import kr.husk.common.jwt.util.JwtProvider;
 import kr.husk.domain.auth.entity.User;
-import kr.husk.domain.auth.exception.AuthExceptionCode;
 import kr.husk.domain.auth.service.UserService;
 import kr.husk.domain.connection.entity.Connection;
 import kr.husk.domain.connection.exception.ConnectionExceptionCode;
@@ -33,10 +32,6 @@ public class ConnectionService {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
-
         User user = userService.read(email);
         KeyChain keyChain = keyChainService.read(user, dto.getKeyChainName());
 
@@ -55,16 +50,13 @@ public class ConnectionService {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
-
         User user = userService.read(email);
         return ConnectionInfoDto.Summary.from(user.getConnections());
     }
 
     public Connection read(Long id) {
         return connectionRepository.findById(id)
+                .filter(connection -> !connection.isDeleted())
                 .orElseThrow(() -> new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND));
     }
 
@@ -72,12 +64,15 @@ public class ConnectionService {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
-        if (!jwtProvider.validateToken(accessToken)) {
-            throw new GlobalException(AuthExceptionCode.INVALID_ACCESS_TOKEN);
-        }
-
         Connection connection = read(id);
-
+        if (isAccessible(connection, email)) {
+            throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
+        }
+        
         return ConnectionInfoDto.Response.of("커넥션 접속에 성공하였습니다.");
+    }
+
+    private boolean isAccessible(Connection connection, String email) {
+        return connection.getUser().getEmail().equals(email);
     }
 }
