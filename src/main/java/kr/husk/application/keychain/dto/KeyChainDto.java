@@ -45,33 +45,66 @@ public class KeyChainDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(name = "KeyChain.KeyChainInfo", description = "키체인 조회 응답 DTO")
-    public static class KeyChainInfo {
+    @Schema(name = "KeyChain.Summary", description = "키체인 조회 응답 DTO")
+    public static class Overview {
         @Schema(description = "키체인 id", example = "1")
         private Long id;
 
         @Schema(description = "키체인명", example = "husk")
         private String name;
 
-        @Schema(description = "키체인 내용", example = "Mxsa59s*2d^dsa")
-        private String content;
-
-        public static List<KeyChainInfo> from(List<KeyChain> keyChains) {
+        public static List<Overview> from(List<KeyChain> keyChains) {
             return keyChains.stream()
                     .filter(keyChain -> keyChain.isDeleted() == false)
-                    .map(keyChain -> KeyChainInfo.builder()
+                    .map(keyChain -> KeyChainDto.Overview.builder()
                             .id(keyChain.getId())
                             .name(keyChain.getName())
                             .build())
                     .collect(Collectors.toUnmodifiableList());
         }
+    }
 
-        public static KeyChainInfo from(KeyChain keyChain, EncryptionService encryptionService) {
-            return KeyChainInfo.builder()
-                    .id(keyChain.getId())
-                    .name(keyChain.getName())
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(name = "KeyChain.Payload", description = "키체인 복호화 응답 DTO")
+    public static class Payload {
+        @Schema(description = "키체인 내용", example = "Mxsa59s*2d^dsa")
+        private String content;
+
+        public static Payload from(KeyChain keyChain, EncryptionService encryptionService) {
+            return Payload.builder()
                     .content(encryptionService.decrypt(keyChain.getContent()))
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(name = "KeyChain.UpdateRequest", description = "키체인 수정 DTO")
+    public static class UpdateRequest {
+        @Schema(description = "키체인 id", example = "1")
+        private Long id;
+
+        @NotBlank(message = "이름은 필수 입력값입니다.")
+        @Schema(description = "키체인명", example = "husk")
+        private String name;
+
+        @NotBlank(message = "키체인 내용은 필수 입력값입니다.")
+        @Schema(description = "키체인 내용", example = "Mxsa59s*2d^dsa")
+        private String content;
+    }
+
 }
+
+
+
+
+
+
+
+
+
