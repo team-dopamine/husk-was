@@ -33,7 +33,7 @@ public class KeyChainController implements KeyChainApi {
 
     @Override
     @PatchMapping("")
-    public ResponseEntity<?> update(HttpServletRequest request, KeyChainDto.KeyChainInfo dto) {
+    public ResponseEntity<?> update(HttpServletRequest request, KeyChainDto.UpdateRequest dto) {
         return ResponseEntity.ok(keyChainService.update(request, dto));
     }
 
