@@ -101,7 +101,7 @@ public class AuthService {
         User user = userService.read(dto.getEmail(), OAuthProvider.NONE);
 
         if (user.isDeleted()) throw new GlobalException(UserExceptionCode.WITHDRAWN_USER);
-        if (!user.isMatched(authConfig.passwordEncoder(), dto.getPassword())) {
+        if (!user.verifyPassword(authConfig.passwordEncoder(), dto.getPassword())) {
             log.info("비밀번호가 일치하지 않습니다. 이메일: {}", dto.getEmail());
             throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
         }
@@ -171,7 +171,7 @@ public class AuthService {
         String email = jwtProvider.getEmail(accessToken);
 
         User user = userService.read(email);
-        if (!user.isMatched(authConfig.passwordEncoder(), dto.getCurrentPassword())) {
+        if (!user.verifyPassword(authConfig.passwordEncoder(), dto.getCurrentPassword())) {
             throw new GlobalException(AuthExceptionCode.PASSWORD_MISMATCHED);
         }
         return ChangePasswordDto.Response.of("사용자의 비밀번호가 일치합니다.");
@@ -191,7 +191,7 @@ public class AuthService {
             throw new GlobalException(UserExceptionCode.OAUTH_PASSWORD_CHANGE_DENIED);
         }
 
-        if (user.isMatched(authConfig.passwordEncoder(), dto.getNewPassword())) {
+        if (user.verifyPassword(authConfig.passwordEncoder(), dto.getNewPassword())) {
             throw new GlobalException(UserExceptionCode.PASSWORD_MUST_BE_DIFFERENT);
         }
 

@@ -50,7 +50,7 @@ public class User extends BaseEntity {
         this.password = passwordEncoder.encode(password);
     }
 
-    public boolean isMatched(PasswordEncoder passwordEncoder, String password) {
+    public boolean verifyPassword(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
     }
 
