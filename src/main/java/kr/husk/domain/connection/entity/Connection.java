@@ -53,4 +53,12 @@ public class Connection extends BaseEntity {
         this.username = username;
         this.port = port;
     }
+
+    public void update(String name, String username, String host, String port, KeyChain keyChain) {
+        this.name = name;
+        this.host = host;
+        this.username = username;
+        this.keyChain = keyChain;
+        this.port = port;
+    }
 }
