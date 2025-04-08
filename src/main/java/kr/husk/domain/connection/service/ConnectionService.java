@@ -15,6 +15,7 @@ import kr.husk.domain.keychain.service.KeyChainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class ConnectionService {
     private final KeyChainService keyChainService;
     private final ConnectionRepository connectionRepository;
 
+    @Transactional
     public ConnectionInfoDto.Response create(HttpServletRequest request, ConnectionInfoDto.Request dto) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
@@ -46,6 +48,7 @@ public class ConnectionService {
         return ConnectionInfoDto.Response.of("SSH 커넥션이 성공적으로 저장되었습니다.");
     }
 
+    @Transactional
     public List<ConnectionInfoDto.Summary> read(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
@@ -54,25 +57,52 @@ public class ConnectionService {
         return ConnectionInfoDto.Summary.from(user.getConnections());
     }
 
+    @Transactional
     public Connection read(Long id) {
         return connectionRepository.findById(id)
                 .filter(connection -> !connection.isDeleted())
                 .orElseThrow(() -> new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND));
     }
 
+    @Transactional
     public ConnectionInfoDto.Response connect(HttpServletRequest request, Long id) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
         Connection connection = read(id);
-        if (isAccessible(connection, email)) {
+        if (!isAccessible(connection, email)) {
             throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
         }
-        
+
         return ConnectionInfoDto.Response.of("커넥션 접속에 성공하였습니다.");
+    }
+
+    @Transactional
+    public ConnectionInfoDto.Response update(HttpServletRequest request, Long id, ConnectionInfoDto.Request dto) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        Connection connection = read(id);
+        if (!isAccessible(connection, email)) {
+            throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
+        }
+
+        User user = userService.read(email);
+        KeyChain keyChain = keyChainService.read(user, dto.getKeyChainName());
+        if (!checkKeyChain(keyChain)) {
+            throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
+        }
+
+        connection.update(dto.getName(), dto.getUsername(), dto.getHost(), dto.getPort(), keyChain);
+
+        return ConnectionInfoDto.Response.of("커넥션 수정에 성공하였습니다.");
     }
 
     private boolean isAccessible(Connection connection, String email) {
         return connection.getUser().getEmail().equals(email);
+    }
+
+    private boolean checkKeyChain(KeyChain keyChain) {
+        return keyChain != null && !keyChain.isDeleted();
     }
 }
