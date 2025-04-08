@@ -7,6 +7,7 @@ import kr.husk.presentation.api.ConnectionApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,4 +37,9 @@ public class ConnectionController implements ConnectionApi {
         return ResponseEntity.ok(connectionService.connect(request, id));
     }
 
+    @Override
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> update(HttpServletRequest request, Long id, ConnectionInfoDto.Request dto) {
+        return ResponseEntity.ok(connectionService.update(request, id, dto));
+    }
 }

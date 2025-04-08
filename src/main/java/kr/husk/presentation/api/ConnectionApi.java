@@ -41,4 +41,13 @@ public interface ConnectionApi {
             @ApiResponse(responseCode = "400", description = "커넥션 접속 실패")
     })
     ResponseEntity<?> connect(HttpServletRequest request, @PathVariable Long id);
+
+    @Operation(summary = "SSH 커넥션 수정", description = "SSH 커넥션 수정 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "SSH 커넥션 수정 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ConnectionInfoDto.Response.class))),
+            @ApiResponse(responseCode = "400", description = "SSH 커넥션 수정 실패")
+    })
+    ResponseEntity<?> update(HttpServletRequest request, @PathVariable Long id, @RequestBody ConnectionInfoDto.Request dto);
 }
