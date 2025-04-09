@@ -13,6 +13,7 @@ import kr.husk.domain.keychain.repository.KeyChainRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class KeyChainService {
     private final EncryptionService encryptionService;
     private final KeyChainRepository keyChainRepository;
 
+    @Transactional
     public KeyChainDto.Response create(HttpServletRequest request, KeyChainDto.Request dto) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
@@ -41,6 +43,7 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 등록이 완료되었습니다.");
     }
 
+    @Transactional
     public List<KeyChainDto.Overview> read(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
@@ -49,6 +52,7 @@ public class KeyChainService {
         return KeyChainDto.Overview.from(user.getKeyChains());
     }
 
+    @Transactional
     public KeyChain read(User user, String name) {
         List<KeyChain> keyChainList = user.getKeyChains();
         for (KeyChain keyChain : keyChainList) {
@@ -59,6 +63,7 @@ public class KeyChainService {
         return null;
     }
 
+    @Transactional
     public KeyChainDto.Response update(HttpServletRequest request, KeyChainDto.UpdateRequest dto) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
@@ -75,6 +80,7 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 수정이 완료되었습니다.");
     }
 
+    @Transactional
     public KeyChainDto.Response delete(HttpServletRequest request, Long id) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
@@ -91,6 +97,7 @@ public class KeyChainService {
         return KeyChainDto.Response.of("키체인 삭제가 완료되었습니다.");
     }
 
+    @Transactional
     public KeyChainDto.Payload decrypt(HttpServletRequest request, Long id) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
