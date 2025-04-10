@@ -98,6 +98,26 @@ public class ConnectionService {
         return ConnectionInfoDto.Response.of("커넥션 수정에 성공하였습니다.");
     }
 
+    @Transactional
+    public ConnectionInfoDto.Response delete(HttpServletRequest request, Long id) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        Connection connection = read(id);
+        if (!isAccessible(connection, email)) {
+            throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
+        }
+
+        if (connection.isDeleted()) {
+            throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
+        }
+
+        connection.delete();
+
+        log.info("사용자 {}의 {}번 커넥션({})이 삭제되었습니다.", email, id, connection.getName());
+        return ConnectionInfoDto.Response.of("커넥션 삭제가 완료되었습니다.");
+    }
+
     private boolean isAccessible(Connection connection, String email) {
         return connection.getUser().getEmail().equals(email);
     }
