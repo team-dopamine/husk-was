@@ -50,4 +50,13 @@ public interface ConnectionApi {
             @ApiResponse(responseCode = "400", description = "SSH 커넥션 수정 실패")
     })
     ResponseEntity<?> update(HttpServletRequest request, @PathVariable Long id, @RequestBody ConnectionInfoDto.Request dto);
+
+    @Operation(summary = "SSH 커넥션 삭제", description = "SSH 커넥션 삭제 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "SSH 커넥션 삭제 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ConnectionInfoDto.Response.class))),
+            @ApiResponse(responseCode = "400", description = "SSH 커넥션 삭제 실패")
+    })
+    ResponseEntity<?> delete(HttpServletRequest request, @PathVariable Long id);
 }

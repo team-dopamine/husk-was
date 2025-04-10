@@ -6,6 +6,7 @@ import kr.husk.domain.connection.service.ConnectionService;
 import kr.husk.presentation.api.ConnectionApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,5 +42,11 @@ public class ConnectionController implements ConnectionApi {
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(HttpServletRequest request, Long id, ConnectionInfoDto.Request dto) {
         return ResponseEntity.ok(connectionService.update(request, id, dto));
+    }
+
+    @Override
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(HttpServletRequest request, Long id) {
+        return ResponseEntity.ok(connectionService.delete(request, id));
     }
 }
