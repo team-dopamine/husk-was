@@ -1,24 +1,31 @@
 package kr.husk.infrastructure.websocket;
 
-import com.jcraft.jsch.ChannelShell;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
+import kr.husk.common.service.EncryptionService;
 import kr.husk.domain.connection.entity.Connection;
 import kr.husk.domain.connection.service.ConnectionService;
 import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Shell;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
@@ -26,87 +33,229 @@ import java.util.Map;
 public class SshWebSocketHandler extends TextWebSocketHandler {
 
     private final ConnectionService connectionService;
-
-    private final Map<WebSocketSession, ChannelShell> sshChannels = new HashMap<>();
-    private final Map<WebSocketSession, Session> sshSessions = new HashMap<>();
+    private final EncryptionService encryptionService;
+    private final Map<WebSocketSession, Shell> sshShells = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, SSHClient> sshClients = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, Session> sshSessions = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, ExecutorService> executors = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         log.info("Web Socket 연결이 완료되었습니다. {}", session.getId());
+        executors.put(session, Executors.newSingleThreadExecutor());
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        log.info("받은 메시지: {}", payload);
-
         if (payload.startsWith("connect:")) {
             Long connectionId = Long.parseLong(payload.split(":")[1]);
+            log.info("{}번 Connection으로 접속합니다.", connectionId);
             connectToSsh(session, connectionId);
         } else {
+            log.info("{}번 Connection으로 메시지 {}를 전송합니다.", session.getAttributes().get("connectionId"), payload);
             sendCommandToSsh(session, payload);
         }
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("WebSocket 연결이 닫혔습니다: {}", session.getId());
-        ChannelShell sshChannel = sshChannels.remove(session);
-        if (sshChannel != null && sshChannel.isConnected()) {
-            sshChannel.disconnect();
-        }
-
-        Session sshSession = sshSessions.remove(session);
-        if (sshSession != null && sshSession.isConnected()) {
-            sshSession.disconnect();
-        }
+    public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus status) throws Exception {
+        cleanupResources(webSocketSession);
+        log.info("{}번 Connection과의 WebSocket 연결이 종료되었습니다", webSocketSession.getAttributes().get("connectionId"));
     }
 
     private void connectToSsh(WebSocketSession webSocketSession, Long connectionId) throws Exception {
         Connection connection = connectionService.read(connectionId);
         KeyChain keyChain = connection.getKeyChain();
 
-        JSch jsch = new JSch();
-        byte[] privateKeyBytes = keyChain.getContent().getBytes(StandardCharsets.UTF_8);
-        jsch.addIdentity(connection.getUsername(), privateKeyBytes, null, null);
+        SSHClient sshClient = new SSHClient();
+        sshClient.addHostKeyVerifier(new PromiscuousVerifier());
 
-        Session sshSession = jsch.getSession(connection.getUsername(), connection.getHost(), Integer.parseInt(connection.getPort()));
-        sshSession.setConfig("StrictHostKeyChecking", "no");
-        sshSession.connect();
+        webSocketSession.getAttributes().put("connectionId", connectionId);
+        try {
+            sshClient.connect(connection.getHost(), Integer.parseInt(connection.getPort()));
+            KeyProvider keyProvider = sshClient.loadKeys(
+                    encryptionService.decrypt(keyChain.getContent()),
+                    null,
+                    null
+            );
+            sshClient.authPublickey(connection.getUsername(), keyProvider);
 
-        ChannelShell channel = (ChannelShell) sshSession.openChannel("shell");
-        channel.setPty(true);
-        InputStream inputStream = channel.getInputStream();
-        OutputStream outputStream = channel.getOutputStream();
-        channel.connect();
+            // 세션 및 셸 채널 열기
+            Session session = sshClient.startSession();
+            session.allocateDefaultPTY(); // PTY 할당
+            Shell shell = session.startShell();
 
-        sshSessions.put(webSocketSession, sshSession);
-        sshChannels.put(webSocketSession, channel);
+            // 맵에 저장
+            sshClients.put(webSocketSession, sshClient);
+            sshSessions.put(webSocketSession, session);
+            sshShells.put(webSocketSession, shell);
 
-        new Thread(() -> {
-            try {
-                byte[] buffer = new byte[1024];
-                int read;
-                while ((read = inputStream.read(buffer)) != -1) {
-                    webSocketSession.sendMessage(new TextMessage(new String(buffer, 0, read, StandardCharsets.UTF_8)));
+            // 별도 스레드에서 출력 읽기
+            ExecutorService executor = executors.get(webSocketSession);
+            executor.submit(() -> {
+                try {
+                    InputStream inputStream = shell.getInputStream();
+                    byte[] buffer = new byte[8192];
+                    int read;
+
+                    // 초기 출력 대기
+                    Thread.sleep(500);
+
+                    while (!Thread.currentThread().isInterrupted()) {
+                        read = inputStream.read(buffer);
+                        if (read > 0) {
+                            String output = new String(buffer, 0, read, StandardCharsets.UTF_8);
+                            log.debug("Received output: [{}]", output);
+                            if (webSocketSession.isOpen()) {
+                                webSocketSession.sendMessage(new TextMessage(output));
+                            }
+                        }
+                        Thread.sleep(10);
+                    }
+                } catch (IOException | InterruptedException e) {
+                    if (webSocketSession.isOpen()) {
+                        try {
+                            log.error("SSH 출력 읽기 중 오류 발생", e);
+                            webSocketSession.sendMessage(new TextMessage("Error: " + e.getMessage()));
+                        } catch (IOException ex) {
+                            log.error("에러 메시지 전송 실패", ex);
+                        }
+                    }
+                    Thread.currentThread().interrupt();
                 }
-            } catch (Exception e) {
-                log.error("SSH 출력 읽기 중 오류 발생", e);
-            }
-        }).start();
+            });
 
-        log.info("SSH 세션이 생성되었습니다: {}", sshSession);
+            log.info("SSH 세션이 생성되었습니다: {}@{}", connection.getUsername(), connection.getHost());
+
+        } catch (Exception e) {
+            log.error("SSH 연결 실패", e);
+            if (sshClient.isConnected()) {
+                sshClient.disconnect();
+            }
+            webSocketSession.sendMessage(new TextMessage("Connection failed: " + e.getMessage()));
+            throw e;
+        }
     }
 
     private void sendCommandToSsh(WebSocketSession webSocketSession, String command) throws Exception {
-        ChannelShell channel = sshChannels.get(webSocketSession);
-        if (channel == null || !channel.isConnected()) {
-            webSocketSession.sendMessage(new TextMessage("Error: SSH session is not connected."));
-            return;
-        }
+        Shell shell = sshShells.get(webSocketSession);
+        Long connectionId = (Long) webSocketSession.getAttributes().get("connectionId");
 
-        OutputStream outputStream = channel.getOutputStream();
-        outputStream.write((command + "\n").getBytes(StandardCharsets.UTF_8));
-        outputStream.flush();
+        validateSshResources(webSocketSession);
+        validateSshConnection(webSocketSession);
+
+        try {
+            OutputStream outputStream = shell.getOutputStream();
+            InputStream inputStream = shell.getInputStream();
+
+            byte[] commandBytes = (command + "\n").getBytes(StandardCharsets.UTF_8);
+            outputStream.write(commandBytes);
+            outputStream.flush();
+
+            // 응답 대기
+            Thread.sleep(100);
+
+            byte[] buffer = new byte[8192]; // 응답 버퍼 용량
+            StringBuilder response = new StringBuilder();
+            int maxWaitTime = 5000;
+            long startTime = System.currentTimeMillis();
+
+            while (System.currentTimeMillis() - startTime < maxWaitTime) {
+                if (inputStream.available() > 0) {
+                    int len = inputStream.read(buffer);
+                    if (len > 0) {
+                        String received = new String(buffer, 0, len, StandardCharsets.UTF_8);
+                        response.append(received);
+                        webSocketSession.sendMessage(new TextMessage(received));
+                    }
+                } else {
+                    Thread.sleep(50);
+                }
+
+                if (response.toString().endsWith("$ ") || response.toString().endsWith("# ")) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            log.error("{}번 Connection으로의 메시지 전송 실패: {}", connectionId, e.getMessage(), e);
+            webSocketSession.sendMessage(new TextMessage("Command failed: " + e.getMessage()));
+            cleanupResources(webSocketSession);
+        } catch (InterruptedException e) {
+            log.error("{}번 Connection 대기 중 인터럽트 오류 발생", connectionId);
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * 자원 정리 메소드
+     *
+     * @param webSocketSession
+     */
+    private void cleanupResources(WebSocketSession webSocketSession) {
+        Optional.ofNullable(sshShells.remove(webSocketSession))
+                .ifPresent(shell -> {
+                    try {
+                        shell.close();
+                    } catch (IOException ignored) {
+                    }
+                });
+
+        Optional.ofNullable(sshSessions.remove(webSocketSession))
+                .ifPresent(session -> {
+                    try {
+                        session.close();
+                    } catch (IOException ignored) {
+                    }
+                });
+
+        Optional.ofNullable(sshClients.remove(webSocketSession))
+                .ifPresent(client -> {
+                    try {
+                        client.disconnect();
+                    } catch (Exception ignored) {
+                    }
+                });
+
+        Optional.ofNullable(executors.remove(webSocketSession))
+                .ifPresent(ExecutorService::shutdownNow);
+    }
+
+    /**
+     * SSH Connection 연결 상태 확인
+     *
+     * @param webSocketSession
+     */
+    private void validateSshConnection(WebSocketSession webSocketSession) {
+        SSHClient sshClient = sshClients.get(webSocketSession);
+        Session session = sshSessions.get(webSocketSession);
+        if (!sshClient.isConnected() || !session.isOpen()) {
+            try {
+                log.error("SSH 연결 끊김: sshClient.connected={}, session.open={}",
+                        sshClient.isConnected(), session.isOpen());
+                webSocketSession.sendMessage(new TextMessage("Error: SSH connection lost"));
+                cleanupResources(webSocketSession);
+            } catch (IOException e) {
+                log.error("에러 메시지 전송 실패", e);
+            }
+        }
+    }
+
+    /**
+     * SSH Connection 관련 자원 상태 확인
+     *
+     * @param webSocketSession
+     * @throws Exception
+     */
+    private void validateSshResources(WebSocketSession webSocketSession) throws Exception {
+        Shell shell = sshShells.get(webSocketSession);
+        Session session = sshSessions.get(webSocketSession);
+        SSHClient sshClient = sshClients.get(webSocketSession);
+
+        Long id = (Long) webSocketSession.getAttributes().get("connectionId");
+        if (shell == null || session == null || sshClient == null) {
+            webSocketSession.sendMessage(new TextMessage("Error: SSH session is not connected."));
+            log.error("{}번 Connection에 대한 SSH session이 연결되지 않았습니다.", id);
+        }
     }
 }
