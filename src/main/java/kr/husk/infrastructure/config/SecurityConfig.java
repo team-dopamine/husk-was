@@ -39,6 +39,7 @@ public class SecurityConfig {
                                         "/api/v1/auth/sign-in",
                                         "/api/v1/auth/terms-of-service",
                                         "/api/v1/auth/password/reset",
+                                        "/ws/ssh-terminal",
                                         "/swagger-resources/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
