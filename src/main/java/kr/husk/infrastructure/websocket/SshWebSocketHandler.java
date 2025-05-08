@@ -7,6 +7,7 @@ import kr.husk.domain.keychain.entity.KeyChain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.PTYMode;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Shell;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,12 +50,16 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
+        log.info("전송할 메시지: {}", payload);
         if (payload.startsWith("connect:")) {
             Long connectionId = Long.parseLong(payload.split(":")[1]);
             log.info("{}번 Connection으로 접속합니다.", connectionId);
             connectToSsh(session, connectionId);
         } else {
-            log.info("{}번 Connection으로 메시지 {}를 전송합니다.", session.getAttributes().get("connectionId"), payload);
+            Long connectionId = (Long) session.getAttributes().get("connectionId");
+            log.info("Connection ID: {}, 메시지: {}",
+                    connectionId != null ? connectionId : "연결 없음",
+                    payload);
             sendCommandToSsh(session, payload);
         }
     }
@@ -83,7 +89,12 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
 
             // 세션 및 셸 채널 열기
             Session session = sshClient.startSession();
-            session.allocateDefaultPTY(); // PTY 할당
+
+            // Echo 모드 비활성화
+            Map<PTYMode, Integer> ptyConfig = new HashMap<>();
+            ptyConfig.put(PTYMode.ECHO, 0);
+            session.allocatePTY("xterm", 80, 24, 0, 0, ptyConfig);
+
             Shell shell = session.startShell();
 
             // 맵에 저장
@@ -147,43 +158,16 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
 
         try {
             OutputStream outputStream = shell.getOutputStream();
-            InputStream inputStream = shell.getInputStream();
 
-            byte[] commandBytes = (command + "\n").getBytes(StandardCharsets.UTF_8);
+            // 명령어만 전송, 응답은 백그라운드 스레드에서 처리(connectToSsh 메소드의 스레드)
+            byte[] commandBytes = command.getBytes(StandardCharsets.UTF_8);
             outputStream.write(commandBytes);
             outputStream.flush();
 
-            // 응답 대기
-            Thread.sleep(100);
-
-            byte[] buffer = new byte[8192]; // 응답 버퍼 용량
-            StringBuilder response = new StringBuilder();
-            int maxWaitTime = 5000;
-            long startTime = System.currentTimeMillis();
-
-            while (System.currentTimeMillis() - startTime < maxWaitTime) {
-                if (inputStream.available() > 0) {
-                    int len = inputStream.read(buffer);
-                    if (len > 0) {
-                        String received = new String(buffer, 0, len, StandardCharsets.UTF_8);
-                        response.append(received);
-                        webSocketSession.sendMessage(new TextMessage(received));
-                    }
-                } else {
-                    Thread.sleep(50);
-                }
-
-                if (response.toString().endsWith("$ ") || response.toString().endsWith("# ")) {
-                    break;
-                }
-            }
         } catch (IOException e) {
             log.error("{}번 Connection으로의 메시지 전송 실패: {}", connectionId, e.getMessage(), e);
             webSocketSession.sendMessage(new TextMessage("Command failed: " + e.getMessage()));
             cleanupResources(webSocketSession);
-        } catch (InterruptedException e) {
-            log.error("{}번 Connection 대기 중 인터럽트 오류 발생", connectionId);
-            Thread.currentThread().interrupt();
         }
     }
 
