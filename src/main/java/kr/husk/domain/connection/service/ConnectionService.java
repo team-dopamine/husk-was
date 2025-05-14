@@ -49,12 +49,27 @@ public class ConnectionService {
     }
 
     @Transactional
-    public List<ConnectionInfoDto.Summary> read(HttpServletRequest request) {
+    public List<ConnectionInfoDto.Summary> list(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
         String email = jwtProvider.getEmail(accessToken);
 
         User user = userService.read(email);
         return ConnectionInfoDto.Summary.from(user.getConnections());
+    }
+
+    @Transactional
+    public ConnectionInfoDto.Details read(HttpServletRequest request, Long id) {
+        String accessToken = jwtProvider.resolveToken(request);
+        String email = jwtProvider.getEmail(accessToken);
+
+        User user = userService.read(email);
+        for (Connection connection : user.getConnections()) {
+            if (connection.getId() == id) {
+                return ConnectionInfoDto.Details.from(connection);
+            }
+        }
+
+        throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
     }
 
     @Transactional

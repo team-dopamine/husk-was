@@ -28,8 +28,14 @@ public class ConnectionController implements ConnectionApi {
 
     @Override
     @GetMapping("")
-    public ResponseEntity<?> read(HttpServletRequest request) {
-        return ResponseEntity.ok(connectionService.read(request));
+    public ResponseEntity<?> list(HttpServletRequest request) {
+        return ResponseEntity.ok(connectionService.list(request));
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<?> read(HttpServletRequest request, Long id) {
+        return ResponseEntity.ok(connectionService.read(request, id));
     }
 
     @Override

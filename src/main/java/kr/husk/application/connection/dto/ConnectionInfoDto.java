@@ -75,4 +75,26 @@ public class ConnectionInfoDto {
             return parts[0] + "." + parts[1] + ".*.*";
         }
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @Schema(name = "ConnectionInfo.Details", description = "SSH 커넥션 조회에 대한 세부 정보 응답 DTO")
+    public static class Details {
+        private String name;
+        private String host;
+        private String username;
+        private String port;
+        private String keyChainName;
+
+        public static Details from(Connection connection) {
+            return Details.builder()
+                    .name(connection.getName())
+                    .host(connection.getHost())
+                    .username(connection.getUsername())
+                    .port(connection.getPort())
+                    .keyChainName(connection.getKeyChain().getName())
+                    .build();
+        }
+    }
 }

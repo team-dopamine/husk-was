@@ -24,14 +24,23 @@ public interface ConnectionApi {
     })
     ResponseEntity<?> create(HttpServletRequest request, @RequestBody ConnectionInfoDto.Request dto);
 
-    @Operation(summary = "SSH 커넥션 조회", description = "SSH 커넥션 조회 요청 API")
+    @Operation(summary = "SSH 커넥션 조회[목록]", description = "SSH 커넥션 조회 요청 API")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "SSH 커넥션 조회 성공",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ConnectionInfoDto.Summary.class))),
             @ApiResponse(responseCode = "400", description = "SSH 커넥션 조회 실패")
     })
-    ResponseEntity<?> read(HttpServletRequest request);
+    ResponseEntity<?> list(HttpServletRequest request);
+
+    @Operation(summary = "SSH 커넥션 조회[세부사항]", description = "SSH 커넥션 세부 조회 요청 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "SSH 커넥션 세부 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ConnectionInfoDto.Details.class))),
+            @ApiResponse(responseCode = "400", description = "SSH 커넥션 세부 조회 실패")
+    })
+    ResponseEntity<?> read(HttpServletRequest request, @PathVariable Long id);
 
     @Operation(summary = "커넥션 접속 요청", description = "커넥션 접속 요청을 위한 API")
     @ApiResponses({
