@@ -81,6 +81,7 @@ public class AuthService {
                 userService.update(user, dto.getPassword());
                 user.encodePassword(authConfig.passwordEncoder());
                 user.restore();
+                user.updateProvider(OAuthProvider.NONE);
             } else {
                 throw new GlobalException(UserExceptionCode.WITHDRAWN_USER);
             }
