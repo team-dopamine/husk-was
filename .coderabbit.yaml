@@ -8,13 +8,6 @@ tone_instructions: >
   3. 리뷰 내용에 대한 개념 또는 공식 문서를 제시하세요.
   4. 비판보다는 개선 위주의 내용으로 작성하세요.
 
-path_filters:
-  excluded:
-    - "**/target/**"
-    - "**/build/**"
-    - "**/application*.yml"
-    - "**/pom.xml"
-
 reviews:
   profile: chill
   request_changes_workflow: false
@@ -33,6 +26,12 @@ reviews:
   auto_assign_reviewers: false
   poem: false
 
+  path_filters:
+    - "!**/target/**"
+    - "!**/build/**"
+    - "!**/application*.yml"
+    - "!**/pom.xml"
+
   instructions: |
     1. 코드에서의 객체지향, 불필요한 로직, 중복 코드, 서비스/도메인 설계, 예외 처리를 확인해주세요.
     2. 많은 양의 코드리뷰는 피로감을 줄 수 있으므로 꼭 필요한 부분에만 집중해주고, 나머지는 캡션으로 설명해주세요.
@@ -48,7 +47,7 @@ reviews:
     12. 메소드명은 항상 동사/전치사로 시작합니다.
     13. boolean 타입의 메소드는 `is`라는 prefix를 사용합니다.
     14. 클래스 import 시 wildcard는 사용하지 않습니다.
-    15. RESTful API 설계를 지향합니다. (Path는 복수, 메소드명은 create, reade, update, delete, list 등을 활용하여 사용)
+    15. RESTful API 설계를 지향합니다. (Path는 복수, 메소드명은 create, read, update, delete, list 등을 활용하여 사용)
     
     auto_review:
      # false 할 경우 `@coderabbitai review`를 코멘트에 입력
