@@ -1,0 +1,76 @@
+language: ko-KR
+
+tone_instructions: >
+  당신은 오랜 경력의 Java & SpringBoot 백엔드 개발자입니다. 
+  목표는 프로젝트의 코드 품질을 개선하며 팀원의 성장을 돕는 것입니다.
+  1. 반드시 명확하고 구체적인 피드백을 제시하세요.
+  2. 문제의 원인과 개선 방법을 반드시 제시하세요.
+  3. 리뷰 내용에 대한 개념 또는 공식 문서를 제시하세요.
+  4. 비판보다는 개선 위주의 내용으로 작성하세요.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  # 변경된 각 파일에 대한 요약 생성
+  changed_files_summary: false
+  # 코드의 실행 흐름을 보여주는 시퀀스 다이어그램을 생성할지 여부입니다.
+  # PR이 너무 길어지는 것을 방지하기 위해 비활성화했습니다.
+  sequence_diagrams: false
+  assess_linked_issues: false
+  related_issues: false
+  related_prs: false
+  suggested_labels: false
+  auto_apply_labels: false
+  suggested_reviewers: false
+  auto_assign_reviewers: false
+  poem: false
+
+  path_filters:
+    - "!**/target/**"
+    - "!**/build/**"
+    - "!**/application*.yml"
+    - "!**/pom.xml"
+
+  auto_review:
+   # false 할 경우 `@coderabbitai review`를 코멘트에 입력
+   enabled: true
+   # 이미 리뷰가 진행된 PR에 새로운 커밋이 추가될 때, 변경된 부분에 대해서만 자동으로 리뷰를 진행할지 여부입니다.
+   auto_incremental_review: false
+
+  instructions: |
+    1. 코드에서의 객체지향, 불필요한 로직, 중복 코드, 서비스/도메인 설계, 예외 처리를 확인해주세요.
+    2. 많은 양의 코드리뷰는 피로감을 줄 수 있으므로 꼭 필요한 부분에만 집중해주고, 나머지는 캡션으로 설명해주세요.
+    3. Pn룰을 사용합니다. 모든 코멘트에는 `Pn:`을 붙여주세요. 중요도에 따라 숫자를 반영해주세요. (P1: 꼭 반영해주세요 (Request changes) / P2: 적극적으로 고려해주세요 (Request changes) / P3: 웬만하면 반영해 주세요 (Comment) / P4: 반영해도 좋고 넘어가도 좋습니다 (Approve) / P5: 그냥 사소한 의견입니다 (Approve))
+    4. 코드에 대한 리뷰를 남길 때는 해당 라인 범위에 코멘트를 작성해주세요.
+    5. 리뷰 포인트별로 문제점, 대안, 장단점을 논리적이고 명확하게 제시하고 경우에 따라 예시 코드도 추가해주세요.
+    6. 변수명은 camelCase를 사용합니다.
+    7. boolean 타입의 변수에는 `is`라는 prefix를 사용합니다.
+    8. 상수명은 모두 대문자를 사용하며, 단어는 `_`로 연결합니다.
+    9. 패키지명은 소문자로 표현합니다.
+    10. 클래스명은 PascalCase를 사용합니다.
+    11. 테스트 클래스명은 항상 `Test`로 끝납니다.
+    12. 메소드명은 항상 동사/전치사로 시작합니다.
+    13. boolean 타입의 메소드는 `is`라는 prefix를 사용합니다.
+    14. 클래스 import 시 wildcard는 사용하지 않습니다.
+    15. RESTful API 설계를 지향합니다. (Path는 복수, 메소드명은 create, read, update, delete, list 등을 활용하여 사용)
+
+chat:
+  # 사용자가 @coderabbitai 태그를 지정하지 않아도 자동으로 답글을 달 수 있도록 설정합니다.
+  auto_reply: true
+
+knowledge_base:
+  web_search: # 웹 검색 허용 여부
+    enabled: true
+
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - README.md
+
+  learnings:
+    scope: local  # 이 레포에서만 학습
+  issues:
+    scope: local
+  pull_requests:
+    scope: local
