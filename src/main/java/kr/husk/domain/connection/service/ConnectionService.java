@@ -102,8 +102,8 @@ public class ConnectionService {
             throw new GlobalException(ConnectionExceptionCode.CONNECTION_NOT_FOUND);
         }
 
-        User user = userService.read(email);
-        KeyChain keyChain = keyChainService.read(user, dto.getKeyChainName());
+        User user = connection.getUser();
+        KeyChain keyChain = connection.getKeyChain();
         if (!checkKeyChain(keyChain)) {
             throw new GlobalException(KeyChainExceptionCode.KEY_CHAIN_NOT_FOUND);
         }

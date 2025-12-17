@@ -91,7 +91,6 @@ public class KeyChainService {
         }
 
         keyChain.delete();
-        keyChainRepository.save(keyChain);
         log.info("사용자 {}의 {}번 키체인이 삭제되었습니다.", email, id);
 
         return KeyChainDto.Response.of("키체인 삭제가 완료되었습니다.");
