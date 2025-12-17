@@ -102,7 +102,6 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
             sshSessions.put(webSocketSession, session);
             sshShells.put(webSocketSession, shell);
 
-            // 별도 스레드에서 출력 읽기
             ExecutorService executor = executors.get(webSocketSession);
             executor.submit(() -> {
                 try {
@@ -110,21 +109,20 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
                     byte[] buffer = new byte[8192];
                     int read;
 
-                    // 초기 출력 대기
-                    Thread.sleep(500);
-
                     while (!Thread.currentThread().isInterrupted()) {
                         read = inputStream.read(buffer);
-                        if (read > 0) {
+                        if (read == -1) { // EOF를 비롯한 쉘의 완전한 종료
+                            break;
+                        }
+                        if (read > 0) { // 문자열 있을 경우만 전송
                             String output = new String(buffer, 0, read, StandardCharsets.UTF_8);
                             log.debug("Received output: [{}]", output);
                             if (webSocketSession.isOpen()) {
                                 webSocketSession.sendMessage(new TextMessage(output));
                             }
                         }
-                        Thread.sleep(10);
                     }
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException e) {
                     if (webSocketSession.isOpen()) {
                         try {
                             log.error("SSH 출력 읽기 중 오류 발생", e);
@@ -133,7 +131,6 @@ public class SshWebSocketHandler extends TextWebSocketHandler {
                             log.error("에러 메시지 전송 실패", ex);
                         }
                     }
-                    Thread.currentThread().interrupt();
                 }
             });
 
